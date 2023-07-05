@@ -1,4 +1,4 @@
-package com.timurkhabibulin.mysplash.ui.theme
+package com.timurkhabibulin.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

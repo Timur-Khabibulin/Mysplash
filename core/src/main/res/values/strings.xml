@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mysplash</string>
+    <string name="home_screen">Home</string>
+    <string name="search_screen">Search</string>
+</resources>
