@@ -1,5 +1,6 @@
 package com.timurkhabibulin.domain.result
 
+
 sealed class Result<out T> {
 
     sealed class Success<T> : Result<T>() {
@@ -12,10 +13,10 @@ sealed class Result<out T> {
 
         data class HttpResponse<T>(
             override val value: T,
-            val statusCode: Int,
-            val statusMessage: String? = null,
-            val url: String? = null
-        ) : Success<T>()
+            override val statusCode: Int,
+            override val statusMessage: String? = null,
+            override val url: String? = null
+        ) : Success<T>(), com.timurkhabibulin.domain.result.HttpResponse
 
         object Empty : Success<Nothing>() {
 

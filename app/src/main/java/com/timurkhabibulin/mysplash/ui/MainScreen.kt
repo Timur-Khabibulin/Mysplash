@@ -3,6 +3,7 @@ package com.timurkhabibulin.mysplash.ui
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -11,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -80,7 +82,8 @@ fun BottomNavBar(
 fun MainScreenNavConfig(navController: NavHostController, innerPadding: PaddingValues) {
     MysplashTheme {
         NavHost(
-            navController,
+            modifier = Modifier.fillMaxSize(),
+            navController = navController,
             startDestination = Screen.Home.route
         ) {
             composable(Screen.Home.route) { TabScreen() }

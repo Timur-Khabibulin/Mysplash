@@ -2,6 +2,8 @@ package com.timurkhabibulin.topics.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -11,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,11 +28,11 @@ import kotlinx.coroutines.launch
 fun TabScreen(
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
-    val pagerState = rememberPagerState()
 
     val topics: List<Topic> by topicsScreenViewModel.topics.collectAsStateWithLifecycle(initialValue = listOf())
+    val pagerState = rememberPagerState(pageCount = { topics.size })
 
-    Column {
+    Column(Modifier.fillMaxSize()) {
         Tabs(tabs = topics, pagerState = pagerState)
         TabsContent(topics = topics, pagerState = pagerState)
     }
@@ -45,7 +48,10 @@ fun TabScreen(
 fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
     val scope = rememberCoroutineScope()
 
-    ScrollableTabRow(selectedTabIndex = pagerState.currentPage) {
+    ScrollableTabRow(
+        modifier = Modifier.fillMaxWidth(),
+        selectedTabIndex = pagerState.currentPage
+    ) {
         Tab(icon = {},
             text = { Text("Home") },
             selected = pagerState.currentPage == 0,
@@ -80,8 +86,8 @@ fun TabsContent(
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
     HorizontalPager(
+        modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = topics.size + 1,
         pageSpacing = 20.dp
     ) { page ->
 

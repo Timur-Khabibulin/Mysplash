@@ -7,7 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface TopicsApi {
+internal interface TopicsApi {
 
     @GET("topics?per_page=50")
     suspend fun getTopics(): Result<List<Topic>>

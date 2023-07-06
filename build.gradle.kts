@@ -6,8 +6,8 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.44" apply false
 }
 
-ext {
-    extra["sdkVersion"] = 33
+project.ext {
+    extra["sdkVersion"] = 34
     extra["minSdkVersion"] = 26
 
     extra["jvmTargetVersion"] = "17"

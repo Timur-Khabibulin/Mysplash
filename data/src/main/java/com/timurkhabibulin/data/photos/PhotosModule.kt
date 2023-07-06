@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class PhotosModule {
+internal class PhotosModule {
     @Provides
     fun providePhotosRepo(photosApi: PhotosApi): PhotosRepository {
         return PhotosRepositoryImpl(photosApi)

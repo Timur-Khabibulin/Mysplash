@@ -6,7 +6,7 @@ import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import javax.inject.Inject
 
-class TopicsRepositoryImpl @Inject constructor(
+internal class TopicsRepositoryImpl @Inject constructor(
     private val topicsApi: TopicsApi
 ) : TopicsRepository {
     override suspend fun getTopics(): Result<List<Topic>> {

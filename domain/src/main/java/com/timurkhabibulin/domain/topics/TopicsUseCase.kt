@@ -3,14 +3,12 @@ package com.timurkhabibulin.domain.topics
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.timurkhabibulin.domain.ItemsPagingSource
-import com.timurkhabibulin.domain.result.asSuccess
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
+import com.timurkhabibulin.domain.result.asSuccess
 import com.timurkhabibulin.domain.result.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -20,8 +18,7 @@ private const val NETWORK_PAGE_SIZE = 10
 
 class TopicsUseCase @Inject constructor(
     private val topicsRepository: TopicsRepository,
-    private val dispatcher: CoroutineDispatcher,
-    private val coroutineScope: CoroutineScope
+    private val dispatcher: CoroutineDispatcher
 ) {
     fun getTopics(): Flow<List<Topic>> {
         return flow {
@@ -39,6 +36,6 @@ class TopicsUseCase @Inject constructor(
                     topicsRepository.getTopicPhotos(topicId, page)
                 }
             }
-        ).flow.cachedIn(coroutineScope)
+        ).flow.flowOn(dispatcher)
     }
 }

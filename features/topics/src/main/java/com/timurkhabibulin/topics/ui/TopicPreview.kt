@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -31,15 +32,15 @@ fun TopicPhotoPreview(topic: Topic) {
 
     Box(
         contentAlignment = Alignment.BottomStart,
-        modifier = Modifier.clip(RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp))
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp))
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(photo.urls.thumb)
                 .diskCachePolicy(CachePolicy.ENABLED)
                 .placeholder(ColorDrawable(photo.color!!.toColorInt()))
-//                .interceptorDispatcher()
-//                .crossfade(250)
                 .build(),
             contentDescription = "Topic preview image",
             contentScale = ContentScale.Crop,

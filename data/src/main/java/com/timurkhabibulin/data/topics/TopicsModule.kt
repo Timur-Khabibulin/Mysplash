@@ -9,7 +9,7 @@ import retrofit2.Retrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
-class TopicsModule {
+internal class TopicsModule {
 
     @Provides
     fun provideTopicsRepository(topicsApi: TopicsApi): TopicsRepository {

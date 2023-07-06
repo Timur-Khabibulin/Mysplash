@@ -2,8 +2,8 @@ package com.timurkhabibulin.domain.result
 
 
 class HttpException(
-    val statusCode: Int,
-    val statusMessage: String? = null,
-    val url: String? = null,
+    override val statusCode: Int,
+    override val statusMessage: String? = null,
+    override val url: String? = null,
     cause: Throwable? = null
-) : Exception(null, cause)
+) : Exception(null, cause), HttpResponse

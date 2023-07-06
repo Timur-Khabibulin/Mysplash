@@ -8,7 +8,7 @@ private const val CONTENT_TYPE = "Content-Type"
 private const val APPLICATION_JSON = "application/json"
 private const val ACCEPT_VERSION = "Accept-Version"
 
-class AuthorizationInterceptor : Interceptor {
+internal class AuthorizationInterceptor : Interceptor {
 
     private val accessToken: String = BuildConfig.UNSPLASH_ACCESS_KEY
     override fun intercept(chain: Interceptor.Chain): Response {

@@ -1,7 +1,9 @@
 package com.timurkhabibulin.topics
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.photos.PhotosUseCase
 import com.timurkhabibulin.domain.topics.TopicsUseCase
@@ -18,9 +20,9 @@ class TopicsScreenViewModel @Inject constructor(
     val topics = topicsUseCase.getTopics()
 
     fun getPhotos(): Flow<PagingData<Photo>>{
-        return photosUseCase.getPhotos()
+        return photosUseCase.getPhotos().cachedIn(viewModelScope)
     }
     fun getPhotosFromTopic(topicId: String): Flow<PagingData<Photo>> {
-        return topicsUseCase.getPhotos(topicId)
+        return topicsUseCase.getPhotos(topicId).cachedIn(viewModelScope)
     }
 }

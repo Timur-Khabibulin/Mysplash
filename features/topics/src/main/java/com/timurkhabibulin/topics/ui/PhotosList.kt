@@ -2,16 +2,22 @@ package com.timurkhabibulin.topics.ui
 
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,30 +34,36 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.timurkhabibulin.domain.entities.Photo
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
-
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PhotosList(
     items: Flow<PagingData<Photo>>,
     header: (@Composable () -> Unit)? = null
 ) {
     val photos = items.collectAsLazyPagingItems()
-    val swipeRfreshState =
-        rememberSwipeRefreshState(isRefreshing = photos.loadState.refresh == LoadState.Loading)
 
-    SwipeRefresh(
-        state = swipeRfreshState,
-        onRefresh = { photos.refresh() },
-        Modifier.fillMaxHeight()
+    val refreshing = photos.loadState.refresh == LoadState.Loading
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = { photos.refresh() })
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
     ) {
         if (photos.loadState.refresh is LoadState.Error)
             OnLoadingError((photos.loadState.refresh as LoadState.Error).error.message!!)
         else OnLoadingSuccess(photos, header)
+
+        PullRefreshIndicator(
+            modifier = Modifier.align(alignment = Alignment.TopCenter),
+            refreshing = refreshing,
+            state = pullRefreshState,
+        )
     }
 
 }
@@ -70,7 +82,7 @@ fun OnLoadingSuccess(
     photos: LazyPagingItems<Photo>,
     header: (@Composable () -> Unit)? = null
 ) {
-    LazyColumn {
+    LazyColumn(Modifier.fillMaxSize()) {
         header?.let { item { it() } }
         items(photos.itemCount) { index ->
             val photo = photos[index] ?: return@items
@@ -85,6 +97,7 @@ fun PhotoCard(photo: Photo) {
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 5.dp)
     ) {
         User(photo)
@@ -100,7 +113,6 @@ fun User(photo: Photo) {
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .interceptorDispatcher(Dispatchers.IO)
                 .data(photo.user.profile_image.large)
                 .diskCachePolicy(CachePolicy.ENABLED)
                 .placeholder(ColorDrawable(photo.color!!.toColorInt()))
