@@ -11,6 +11,6 @@ internal interface PhotosApi {
     @GET("photos")
     suspend fun getPhotos(@Query("page") page: Int): Result<List<Photo>>
 
-    @GET("photo/{id}")
+    @GET("photos/{id}")
     suspend fun getPhoto(@Path("id") id: String): Result<Photo>
 }

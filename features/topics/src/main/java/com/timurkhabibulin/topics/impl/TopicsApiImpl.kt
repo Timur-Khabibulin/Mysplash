@@ -6,8 +6,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.topics.TopicsApi
-import com.timurkhabibulin.topics.impl.ui.PhotoInfoScreen
-import com.timurkhabibulin.topics.impl.ui.TopicsScreen
+import com.timurkhabibulin.topics.impl.ui.photo.PhotoScreen
+import com.timurkhabibulin.topics.impl.ui.topics.TopicsScreen
 
 internal class TopicsApiImpl : TopicsApi {
     private val detailsRoute = "$route/details"
@@ -34,9 +34,9 @@ internal class TopicsApiImpl : TopicsApi {
                 isFullScreen(true)
                 val photo =
                     navController.previousBackStackEntry?.savedStateHandle?.get<Photo>("photo")
-                PhotoInfoScreen(photo ?: Photo.Default) {
-                    navController.navigateUp()
-                }
+                PhotoScreen(
+                    photoID = photo?.id ?: "",
+                    onBackPressed = { navController.navigateUp() })
             }
         }
     }

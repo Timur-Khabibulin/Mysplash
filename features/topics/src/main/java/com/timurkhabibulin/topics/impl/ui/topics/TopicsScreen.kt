@@ -1,4 +1,4 @@
-package com.timurkhabibulin.topics.impl.ui
+package com.timurkhabibulin.topics.impl.ui.topics
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,8 @@ import androidx.paging.PagingData
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
+import com.timurkhabibulin.topics.impl.ui.AboutTopic
+import com.timurkhabibulin.topics.impl.ui.PagingPhotosList
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 

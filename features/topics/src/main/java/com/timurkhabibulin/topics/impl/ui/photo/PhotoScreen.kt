@@ -1,4 +1,4 @@
-package com.timurkhabibulin.topics.impl.ui
+package com.timurkhabibulin.topics.impl.ui.photo
 
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.clickable
@@ -19,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,17 +29,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.theme.MysplashTheme
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.core.R.drawable.arrow_square_up
+import com.timurkhabibulin.topics.impl.ui.User
+
+
+@Composable
+internal fun PhotoScreen(
+    photoID: String,
+    onBackPressed: () -> Unit,
+    photoScreenViewModel: PhotoScreenViewModel = hiltViewModel()
+) {
+    photoScreenViewModel.loadPhoto(photoID)
+    val photo: Photo by photoScreenViewModel.photo.collectAsState(initial = Photo.Default)
+    PhotoInfoScreen(
+        photo = photo,
+        onBackPressed = onBackPressed
+    )
+}
 
 @Composable
 @Preview
 internal fun PhotoInfoScreenPreview() {
-    PhotoInfoScreen(Photo.Default){}
+    PhotoInfoScreen(Photo.Default) {}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

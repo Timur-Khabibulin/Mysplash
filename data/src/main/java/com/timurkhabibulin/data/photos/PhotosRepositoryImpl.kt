@@ -12,4 +12,8 @@ internal class PhotosRepositoryImpl @Inject constructor(
     override suspend fun getPhotos(page: Int): Result<List<Photo>> {
         return photosApi.getPhotos(page)
     }
+
+    override suspend fun getPhoto(id: String): Result<Photo> {
+        return photosApi.getPhoto(id)
+    }
 }

@@ -1,4 +1,4 @@
-package com.timurkhabibulin.topics.impl.ui
+package com.timurkhabibulin.topics.impl.ui.topics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

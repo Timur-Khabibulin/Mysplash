@@ -5,4 +5,6 @@ import com.timurkhabibulin.domain.entities.Photo
 
 interface PhotosRepository {
     suspend fun getPhotos(page: Int): Result<List<Photo>>
+
+    suspend fun getPhoto(id: String): Result<Photo>
 }
