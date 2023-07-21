@@ -90,7 +90,7 @@ dependencies {
 //    kapt("com.google.dagger:dagger-compiler:2.46.1")
 //    implementation("com.google.dagger:dagger:2.46.1")
 
-    implementation("com.google.dagger:hilt-android:2.46.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+    implementation("com.google.dagger:hilt-android:2.47")
+    kapt("com.google.dagger:hilt-android-compiler:2.47")
 
 }

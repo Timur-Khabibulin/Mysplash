@@ -1,9 +1,8 @@
 package com.timurkhabibulin.mysplash.ui
 
-import android.annotation.SuppressLint
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -11,53 +10,60 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.timurkhabibulin.core.FeatureApi
 import com.timurkhabibulin.core.theme.MysplashTheme
-import com.timurkhabibulin.topics.ui.TabScreen
+import com.timurkhabibulin.topics.TopicsApi
 
-@SuppressLint("SuspiciousIndentation")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+
 @Composable
-fun MainScreen() {
-    val bottomNavItems = listOf(
-        Screen.Home
-    )
+internal fun MainScreen(mainScreenViewModel: MainScreenViewModel = viewModel()) {
+
     val navController = rememberNavController()
+    val isFullScreen by mainScreenViewModel.isFullScreen.collectAsState()
 
     MysplashTheme {
         Scaffold(
             bottomBar = {
-                BottomNavBar(
-                    navController,
-                    bottomNavItems
-                )
+                if (!isFullScreen)
+                    BottomNavBar(
+                        mainScreenViewModel.features,
+                        navController
+                    )
             }
 
         ) { innerPadding ->
-            MainScreenNavConfig(navController, innerPadding)
+            Box(Modifier.padding(innerPadding)) {
+                MainScreenNavConfig(
+                    mainScreenViewModel.features,
+                    navController
+                ) { isFullScreen ->
+                    mainScreenViewModel.changeScreenMode(isFullScreen)
+                }
+            }
         }
     }
 }
 
 @Composable
-fun BottomNavBar(
-    navController: NavHostController,
-    items: List<Screen>
+internal fun BottomNavBar(
+    features: Set<FeatureApi>,
+    navController: NavHostController
 ) {
     MysplashTheme {
         NavigationBar {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            items.forEach { screen ->
+            features.forEach { screen ->
                 NavigationBarItem(
                     label = { Text(stringResource(screen.resId)) },
                     selected = currentRoute == screen.route,
@@ -79,14 +85,20 @@ fun BottomNavBar(
 }
 
 @Composable
-fun MainScreenNavConfig(navController: NavHostController, innerPadding: PaddingValues) {
+internal fun MainScreenNavConfig(
+    features: Set<FeatureApi>,
+    navController: NavHostController,
+    isFullScreen: (Boolean) -> Unit
+) {
     MysplashTheme {
         NavHost(
             modifier = Modifier.fillMaxSize(),
             navController = navController,
-            startDestination = Screen.Home.route
+            startDestination = TopicsApi.Route
         ) {
-            composable(Screen.Home.route) { TabScreen() }
+            features.forEach {
+                it.registerGraph(this, navController, isFullScreen)
+            }
         }
     }
 }

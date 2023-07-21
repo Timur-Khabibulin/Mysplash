@@ -10,4 +10,14 @@ data class Topic(
     val description: String,
     val links: Links,
     val cover_photo: Photo
-) : Parcelable
+) : Parcelable {
+    companion object {
+        val Default = Topic(
+            "123123",
+            "Some topic",
+            "Very interesting description of this super magic topic",
+            Links(),
+            Photo.Default
+        )
+    }
+}

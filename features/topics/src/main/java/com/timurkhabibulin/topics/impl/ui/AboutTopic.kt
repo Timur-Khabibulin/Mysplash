@@ -1,4 +1,4 @@
-package com.timurkhabibulin.topics.ui
+package com.timurkhabibulin.topics.impl.ui
 
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
@@ -27,7 +28,13 @@ import coil.request.ImageRequest
 import com.timurkhabibulin.domain.entities.Topic
 
 @Composable
-fun TopicPhotoPreview(topic: Topic) {
+@Preview
+internal fun AboutTopicPreview() {
+    AboutTopic(Topic.Default)
+}
+
+@Composable
+internal fun AboutTopic(topic: Topic) {
     val photo = topic.cover_photo
 
     Box(

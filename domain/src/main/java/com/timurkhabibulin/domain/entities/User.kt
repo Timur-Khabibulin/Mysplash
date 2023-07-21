@@ -16,4 +16,20 @@ data class User(
     val total_collection: Int,
     val profile_image: Urls,
     val links: Links
-) : Parcelable
+) : Parcelable {
+    companion object {
+        val DefaultUser = User(
+            "QPxL2MGqfrw",
+            "exampleuser",
+            "Joe Example",
+            null,
+            null,
+            null,
+            5,
+            10,
+            7,
+            Urls(),
+            Links()
+        )
+    }
+}

@@ -58,8 +58,10 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.1.1")
     implementation("androidx.compose.material:material-icons-extended:1.4.3")
 
-    implementation("com.google.dagger:hilt-android:2.46.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+    implementation("com.google.dagger:hilt-android:2.47")
+    implementation("androidx.navigation:navigation-common-ktx:2.6.0")
+    implementation("androidx.navigation:navigation-runtime-ktx:2.6.0")
+    kapt("com.google.dagger:hilt-android-compiler:2.47")
 
 
     testImplementation("junit:junit:4.13.2")

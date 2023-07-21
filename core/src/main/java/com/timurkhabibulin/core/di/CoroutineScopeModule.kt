@@ -1,4 +1,4 @@
-package com.timurkhabibulin.core
+package com.timurkhabibulin.core.di
 
 
 import dagger.Module

@@ -1,6 +1,7 @@
-package com.timurkhabibulin.topics.ui
+package com.timurkhabibulin.topics.impl.ui
 
 import android.graphics.drawable.ColorDrawable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.paging.LoadState
@@ -35,13 +37,18 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.domain.entities.Photo
+import com.timurkhabibulin.domain.entities.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PhotosList(
+internal fun PagingPhotosList(
     items: Flow<PagingData<Photo>>,
-    header: (@Composable () -> Unit)? = null
+    header: (@Composable () -> Unit)? = null,
+    onPhotoClick: (Photo) -> Unit,
+    onUserClick: (User) -> Unit
 ) {
     val photos = items.collectAsLazyPagingItems()
 
@@ -57,7 +64,12 @@ fun PhotosList(
     ) {
         if (photos.loadState.refresh is LoadState.Error)
             OnLoadingError((photos.loadState.refresh as LoadState.Error).error.message!!)
-        else OnLoadingSuccess(photos, header)
+        else PhotosList(
+            photos,
+            onPhotoClick = { ph -> onPhotoClick(ph) },
+            onUserClick = { us -> onUserClick(us) },
+            header
+        )
 
         PullRefreshIndicator(
             modifier = Modifier.align(alignment = Alignment.TopCenter),
@@ -69,7 +81,7 @@ fun PhotosList(
 }
 
 @Composable
-fun OnLoadingError(errorMessage: String) {
+internal fun OnLoadingError(errorMessage: String) {
     Text(
         text = errorMessage,
         style = MaterialTheme.typography.titleSmall,
@@ -78,36 +90,63 @@ fun OnLoadingError(errorMessage: String) {
 }
 
 @Composable
-fun OnLoadingSuccess(
+@Preview
+internal fun PhotosListPreview() {
+    PhotosList(flow {
+        emit(PagingData.from(listOf(Photo.Default, Photo.Default)))
+    }.collectAsLazyPagingItems(), {}, {})
+}
+
+@Composable
+internal fun PhotosList(
     photos: LazyPagingItems<Photo>,
+    onPhotoClick: (Photo) -> Unit,
+    onUserClick: (User) -> Unit,
     header: (@Composable () -> Unit)? = null
 ) {
-    LazyColumn(Modifier.fillMaxSize()) {
+    LazyColumn(
+        Modifier.fillMaxSize()
+    ) {
         header?.let { item { it() } }
         items(photos.itemCount) { index ->
             val photo = photos[index] ?: return@items
-            PhotoCard(photo)
+            PhotoCard(
+                photo,
+                onPhotoClick = { ph -> onPhotoClick(ph) },
+                onUserClick = { us -> onUserClick(us) })
         }
     }
 }
 
+
 @Composable
-fun PhotoCard(photo: Photo) {
+@Preview
+internal fun PhotoCardPrevew() {
+    PhotoCard(Photo.Default, {}, {})
+}
+
+@Composable
+internal fun PhotoCard(
+    photo: Photo,
+    onPhotoClick: (Photo) -> Unit,
+    onUserClick: (User) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 5.dp)
+            .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 20.dp)
     ) {
-        User(photo)
-        PhotoView(photo = photo)
+        User(photo) { us -> onUserClick(us) }
+        PhotoView(photo) { ph -> onPhotoClick(ph) }
     }
 }
 
 @Composable
-fun User(photo: Photo) {
+internal fun User(photo: Photo, onUserClick: (User) -> Unit) {
     Row(
+        Modifier.clickable { onUserClick(photo.user) },
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -127,14 +166,14 @@ fun User(photo: Photo) {
         Column {
             Text(
                 text = photo.user.name,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.titleMedium
             )
         }
     }
 }
 
 @Composable
-fun PhotoView(photo: Photo) {
+internal fun PhotoView(photo: Photo, onPhotoClick: (Photo) -> Unit) {
     val ratio = photo.width.toFloat() / photo.height
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -147,5 +186,6 @@ fun PhotoView(photo: Photo) {
         modifier = Modifier
             .aspectRatio(if (ratio > 0) ratio else 1 / ratio)
             .clip(RoundedCornerShape(size = 10.dp))
+            .clickable(onClick = { onPhotoClick(photo) })
     )
 }

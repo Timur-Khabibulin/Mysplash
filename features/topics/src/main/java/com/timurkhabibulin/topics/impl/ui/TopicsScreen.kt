@@ -1,4 +1,4 @@
-package com.timurkhabibulin.topics.ui
+package com.timurkhabibulin.topics.impl.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
@@ -7,45 +7,49 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
-import com.timurkhabibulin.topics.TopicsScreenViewModel
+import com.timurkhabibulin.domain.entities.User
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Preview
 @Composable
-fun TabScreen(
+internal fun TopicsScreen(
+    onNavigateToUser: (User) -> Unit,
+    onNavigateToPhoto: (Photo) -> Unit,
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
 
-    val topics: List<Topic> by topicsScreenViewModel.topics.collectAsStateWithLifecycle(initialValue = listOf())
+    val topics: List<Topic> by topicsScreenViewModel.topics.collectAsState()//.collectAsStateWithLifecycle(initialValue = listOf())
     val pagerState = rememberPagerState(pageCount = { topics.size })
 
     Column(Modifier.fillMaxSize()) {
         Tabs(tabs = topics, pagerState = pagerState)
-        TabsContent(topics = topics, pagerState = pagerState)
+        TabsContent(
+            topics = topics,
+            pagerState = pagerState,
+            onNavigateToPhoto = { photo -> onNavigateToPhoto(photo) },
+            onNavigateToUser = { user -> onNavigateToUser(user) }
+        )
     }
-    /*    Surface {
-            TabsContent(topic = topics, pagerState = pagerState)
-            Tabs(tabs = topics, pagerState = pagerState)
-        }*/
 }
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
+internal fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
     val scope = rememberCoroutineScope()
 
     ScrollableTabRow(
@@ -65,7 +69,7 @@ fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
         tabs.forEachIndexed { index, topic ->
             Tab(
                 icon = { },
-                text = { Text(topic.title) },
+                text = { Text(topic.title, style = MaterialTheme.typography.titleMedium) },
                 selected = pagerState.currentPage == index + 1,
                 onClick = {
                     scope.launch {
@@ -80,9 +84,11 @@ fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsContent(
+internal fun TabsContent(
     topics: List<Topic>,
     pagerState: PagerState,
+    onNavigateToUser: (User) -> Unit,
+    onNavigateToPhoto: (Photo) -> Unit,
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
     HorizontalPager(
@@ -92,11 +98,16 @@ fun TabsContent(
     ) { page ->
 
         val photos =
-            if (page == 0) topicsScreenViewModel.getPhotos()
-            else topicsScreenViewModel.getPhotosFromTopic(topics[page - 1].id)
+            if (page == 0) topicsScreenViewModel.photos
+            else topicsScreenViewModel.photosByTopic[topics[page - 1].id]
+                ?: flow { PagingData.empty<Photo>() }
 
-        PhotosList(photos) {
-            if (page != 0) TopicPhotoPreview(topics[page - 1])
-        }
+        PagingPhotosList(
+            photos,
+            onUserClick = { user -> onNavigateToUser(user) },
+            onPhotoClick = { photo -> onNavigateToPhoto(photo) },
+            header = {
+                if (page != 0) AboutTopic(topics[page - 1])
+            })
     }
 }

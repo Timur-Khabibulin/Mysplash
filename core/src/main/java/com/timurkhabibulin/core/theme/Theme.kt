@@ -48,7 +48,7 @@ import androidx.core.view.WindowCompat
 )*/
 
 
-private val DarkColors = darkColorScheme(
+private val darkColors = darkColorScheme(
     primary = Color.White,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = Color.White,//fab background
@@ -93,7 +93,7 @@ fun MysplashTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        else -> DarkColors
+        else -> darkColors
 //        else -> LightColors
     }
     val view = LocalView.current
