@@ -13,4 +13,5 @@ internal interface PhotosApi {
 
     @GET("photos/{id}")
     suspend fun getPhoto(@Path("id") id: String): Result<Photo>
+
 }
