@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class CoroutineScopeModule {
+class CoreModule {
     @Singleton
     @Provides
     fun providesCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope {
@@ -24,4 +24,5 @@ class CoroutineScopeModule {
     @Singleton
     @Provides
     fun provideDispatcherIO(): CoroutineDispatcher = Dispatchers.IO
+
 }

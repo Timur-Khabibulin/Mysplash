@@ -36,7 +36,7 @@ internal fun TopicsScreen(
 ) {
 
     val topics: List<Topic> by topicsScreenViewModel.topics.collectAsState()//.collectAsStateWithLifecycle(initialValue = listOf())
-    val pagerState = rememberPagerState(pageCount = { topics.size })
+    val pagerState = rememberPagerState(pageCount = { topics.size + 1 })
 
     Column(Modifier.fillMaxSize()) {
         Tabs(tabs = topics, pagerState = pagerState)
@@ -77,7 +77,7 @@ internal fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
                     scope.launch {
                         pagerState.animateScrollToPage(index + 1)
                     }
-                },
+                }
             )
         }
     }

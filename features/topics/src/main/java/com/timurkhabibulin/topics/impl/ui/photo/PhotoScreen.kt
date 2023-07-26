@@ -1,6 +1,8 @@
 package com.timurkhabibulin.topics.impl.ui.photo
 
+import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -12,9 +14,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -44,6 +49,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.R.drawable
+import com.timurkhabibulin.core.theme.MysplashTheme
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.topics.impl.ui.User
 
@@ -56,22 +62,33 @@ internal fun PhotoScreen(
 ) {
     photoScreenViewModel.loadPhoto(photoID)
     val photo: Photo by photoScreenViewModel.photo.collectAsState(initial = Photo.Default)
+    val context = LocalContext.current
 
     PhotoInfoScreen(
         photo = photo,
         onBackPressed = onBackPressed,
         onDownloadPhoto = { ph ->
-            photoScreenViewModel.downloadPhoto(ph) /*{
-                Toast.makeText(context, "Saved to Pictures", Toast.LENGTH_SHORT).show()
-            }*/
+            photoScreenViewModel.downloadPhoto(ph,
+                onStartDownload = {
+                    Toast.makeText(context, "Download has begun", Toast.LENGTH_SHORT).show()
+                },
+                onDownloadComplete = {
+                    Toast.makeText(context, "Download is complete", Toast.LENGTH_SHORT).show()
+                }
+            )
         }
     )
+
 }
 
 @Composable
-@Preview
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 internal fun PhotoInfoScreenPreview() {
-    PhotoInfoScreen(Photo.Default, {}, {})
+    MysplashTheme {
+        PhotoInfoScreen(Photo.Default, {}, {})
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,56 +100,69 @@ internal fun PhotoInfoScreen(
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 120.dp,
-        topBar = { TopBar(onBackPressed) },
-        sheetContent = {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, bottom = 25.dp),
-                verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.Start,
-            ) {
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+    Box(contentAlignment = Alignment.BottomEnd) {
+        BottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = 120.dp,
+            sheetContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            topBar = { TopBar(onBackPressed) },
+            sheetContent = {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 25.dp, end = 20.dp, bottom = 25.dp),
+                    verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     User(photo) {}
-                    FloatingActionButton(
-                        shape = CircleShape,
-                        onClick = { onDownloadPhoto(photo) }
-                    ) {
-                        Icon(
-                            painter = painterResource(drawable.download_02),
-                            contentDescription = "download icon"
+
+                    photo.description?.let {
+                        Text(
+                            text = it,
+                            Modifier.width(280.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Start
                         )
                     }
-                }
 
-                photo.description?.let {
-                    Text(
-                        text = it,
-                        Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
-                    )
+                    Exif(photo)
                 }
-
-                Exif(photo)
+            }
+        ) { innerPadding ->
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding), contentAlignment = Alignment.Center
+            ) {
+                Photo(photo)
             }
         }
-    ) { innerPadding ->
-        Box(
-            Modifier
-                .fillMaxSize()
-                .padding(innerPadding), contentAlignment = Alignment.Center
-        ) {
-            Photo(photo)
-        }
+        FABs(
+            onLikePhoto = {},
+            onAddPhoto = {},
+            onDownloadPhoto = { onDownloadPhoto(photo) }
+        )
+    }
+}
+
+@Composable
+internal fun TopBar(onBackPressed: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 25.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Back icon",
+            Modifier.clickable { onBackPressed() }
+        )
+        Icon(
+            painter = painterResource(drawable.arrow_square_up),
+            contentDescription = "Open in browser icon"
+        )
     }
 }
 
@@ -176,31 +206,10 @@ internal fun Photo(photo: Photo) {
 }
 
 @Composable
-internal fun TopBar(onBackPressed: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 25.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Back icon",
-            Modifier.clickable { onBackPressed() }
-        )
-        Icon(
-            painter = painterResource(drawable.arrow_square_up),
-            contentDescription = "Open in browser icon"
-        )
-    }
-}
-
-@Composable
 internal fun Exif(photo: Photo) {
     Row(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(50.dp, Alignment.CenterHorizontally)
+        horizontalArrangement = Arrangement.spacedBy(50.dp, Alignment.Start)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -218,6 +227,51 @@ internal fun Exif(photo: Photo) {
             ExifParameter("Exposure", photo.exif?.exposure_time ?: "Unknown")
         }
     }
+}
+
+@Composable
+internal fun FABs(
+    onLikePhoto: () -> Unit,
+    onAddPhoto: () -> Unit,
+    onDownloadPhoto: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(25.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
+    ) {
+        FloatingActionButton(
+            shape = CircleShape,
+            onClick = { onLikePhoto() }
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.FavoriteBorder,
+                contentDescription = "like icon"
+            )
+        }
+
+        FloatingActionButton(
+            shape = CircleShape,
+            onClick = { onAddPhoto() }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "add icon"
+            )
+        }
+
+        FloatingActionButton(
+            shape = CircleShape,
+            onClick = { onDownloadPhoto() },
+            containerColor = MaterialTheme.colorScheme.inverseSurface,
+            contentColor = MaterialTheme.colorScheme.inversePrimary
+        ) {
+            Icon(
+                painter = painterResource(drawable.download_02),
+                contentDescription = "download icon"
+            )
+        }
+    }
+
 }
 
 @Composable

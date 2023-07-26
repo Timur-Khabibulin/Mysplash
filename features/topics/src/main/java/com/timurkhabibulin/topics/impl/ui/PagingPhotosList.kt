@@ -36,6 +36,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.timurkhabibulin.core.theme.MysplashTheme
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import kotlinx.coroutines.flow.Flow
@@ -92,9 +93,11 @@ internal fun OnLoadingError(errorMessage: String) {
 @Composable
 @Preview
 internal fun PhotosListPreview() {
-    PhotosList(flow {
-        emit(PagingData.from(listOf(Photo.Default, Photo.Default)))
-    }.collectAsLazyPagingItems(), {}, {})
+    MysplashTheme {
+        PhotosList(flow {
+            emit(PagingData.from(listOf(Photo.Default, Photo.Default)))
+        }.collectAsLazyPagingItems(), {}, {})
+    }
 }
 
 @Composable
