@@ -1,24 +1,34 @@
 package com.timurkhabibulin.topics.impl.ui.topics
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabPosition
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
+import com.timurkhabibulin.core.theme.MysplashTheme
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
@@ -35,11 +45,11 @@ internal fun TopicsScreen(
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
 
-    val topics: List<Topic> by topicsScreenViewModel.topics.collectAsState()//.collectAsStateWithLifecycle(initialValue = listOf())
+    val topics: List<Topic> by topicsScreenViewModel.topics.collectAsState()
     val pagerState = rememberPagerState(pageCount = { topics.size + 1 })
 
     Column(Modifier.fillMaxSize()) {
-        Tabs(tabs = topics, pagerState = pagerState)
+        ScrollableTab(tabs = topics, pagerState = pagerState)
         TabsContent(
             topics = topics,
             pagerState = pagerState,
@@ -51,38 +61,47 @@ internal fun TopicsScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun Tabs(tabs: List<Topic>, pagerState: PagerState) {
-    val scope = rememberCoroutineScope()
+@Preview
+internal fun ScrollableTabPreview() {
+    val tabs = listOf(Topic.Default, Topic.Default)
+    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    MysplashTheme {
+        ScrollableTab(tabs, pagerState)
+    }
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun ScrollableTab(
+    tabs: List<Topic>,
+    pagerState: PagerState
+) {
     ScrollableTabRow(
-        modifier = Modifier.fillMaxWidth(),
-        selectedTabIndex = pagerState.currentPage
+        modifier = Modifier.padding(vertical = 5.dp),
+        edgePadding = 10.dp,
+        selectedTabIndex = pagerState.currentPage,
+        indicator = { tabPositions -> TabIndicator(tabPositions[pagerState.currentPage]) },
+        divider = {}
     ) {
-        Tab(icon = {},
-            text = { Text("Home") },
+        CustomTab(
+            text = "Home",
             selected = pagerState.currentPage == 0,
             onClick = {
-                scope.launch {
-                    pagerState.animateScrollToPage(0)
-                }
+                pagerState.animateScrollToPage(0)
             }
         )
 
         tabs.forEachIndexed { index, topic ->
-            Tab(
-                icon = { },
-                text = { Text(topic.title, style = MaterialTheme.typography.titleMedium) },
+            CustomTab(
+                text = topic.title,
                 selected = pagerState.currentPage == index + 1,
                 onClick = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(index + 1)
-                    }
+                    pagerState.animateScrollToPage(index + 1)
                 }
             )
         }
     }
 }
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -110,6 +129,48 @@ internal fun TabsContent(
             onPhotoClick = { photo -> onNavigateToPhoto(photo) },
             header = {
                 if (page != 0) AboutTopic(topics[page - 1])
-            })
+            }
+        )
     }
+}
+
+@Composable
+internal fun TabIndicator(tabPosition: TabPosition) {
+    Box(
+        modifier = Modifier
+            .tabIndicatorOffset(tabPosition)
+            .padding(horizontal = 5.dp)
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(100))
+            .zIndex(-1f),
+    )
+}
+
+@Composable
+internal fun CustomTab(
+    text: String,
+    selected: Boolean,
+    onClick: suspend () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    Tab(
+        modifier = Modifier
+            .padding(horizontal = 5.dp)
+            .border(
+                BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
+                RoundedCornerShape(100)
+            ),
+        text = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        selected = selected,
+        onClick = {
+            scope.launch {
+                onClick()
+            }
+        }
+    )
 }

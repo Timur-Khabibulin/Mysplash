@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -74,8 +73,7 @@ internal fun BottomNavBar(
                     icon = {
                         Icon(
                             screen.imageVector,
-                            "Menu icon",
-                            tint = MaterialTheme.colorScheme.primary
+                            "Menu icon"
                         )
                     }
                 )

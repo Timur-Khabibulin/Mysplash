@@ -41,7 +41,7 @@ internal fun AboutTopic(topic: Topic) {
         contentAlignment = Alignment.BottomStart,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp))
+            .clip(RoundedCornerShape(10.dp/*bottomEnd = 10.dp, bottomStart = 10.dp*/))
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
