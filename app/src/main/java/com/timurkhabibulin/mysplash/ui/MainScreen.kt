@@ -1,9 +1,8 @@
 package com.timurkhabibulin.mysplash.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -15,12 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.timurkhabibulin.core.FeatureApi
-import com.timurkhabibulin.core.theme.MysplashTheme
-import com.timurkhabibulin.topics.TopicsApi
+import com.timurkhabibulin.mysplash.navigation.BOTTOM_BAR_ITEMS
+import com.timurkhabibulin.mysplash.navigation.MainNavHost
 
 
 @Composable
@@ -29,25 +27,20 @@ internal fun MainScreen(mainScreenViewModel: MainScreenViewModel = viewModel()) 
     val navController = rememberNavController()
     val isFullScreen by mainScreenViewModel.isFullScreen.collectAsState()
 
-    MysplashTheme {
-        Scaffold(
-            bottomBar = {
-                if (!isFullScreen)
-                    BottomNavBar(
-                        mainScreenViewModel.features,
-                        navController
-                    )
-            }
-
-        ) { innerPadding ->
-            Box(Modifier.padding(innerPadding)) {
-                MainScreenNavConfig(
-                    mainScreenViewModel.features,
+    Scaffold(
+        bottomBar = {
+            if (!isFullScreen)
+                BottomNavBar(
+                    BOTTOM_BAR_ITEMS,
                     navController
-                ) { isFullScreen ->
-                    mainScreenViewModel.changeScreenMode(isFullScreen)
-                }
-            }
+                )
+        }
+
+    ) { innerPadding ->
+        Box(Modifier.padding(innerPadding)) {
+            MainNavHost(
+                navController = navController,
+                isFullScreen = { mainScreenViewModel.changeScreenMode(it) })
         }
     }
 }
@@ -57,46 +50,25 @@ internal fun BottomNavBar(
     features: Set<FeatureApi>,
     navController: NavHostController
 ) {
-    MysplashTheme {
-        NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
+    NavigationBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
 
-            features.forEach { screen ->
-                NavigationBarItem(
-                    label = { Text(stringResource(screen.resId)) },
-                    selected = currentRoute == screen.route,
-                    onClick = {
-                        if (currentRoute != screen.route)
-                            navController.navigate(screen.route)
-                    },
-                    icon = {
-                        Icon(
-                            screen.imageVector,
-                            "Menu icon"
-                        )
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-internal fun MainScreenNavConfig(
-    features: Set<FeatureApi>,
-    navController: NavHostController,
-    isFullScreen: (Boolean) -> Unit
-) {
-    MysplashTheme {
-        NavHost(
-            modifier = Modifier.fillMaxSize(),
-            navController = navController,
-            startDestination = TopicsApi.Route
-        ) {
-            features.forEach {
-                it.registerGraph(this, navController, isFullScreen)
-            }
+        features.forEach { feature ->
+            NavigationBarItem(
+                label = { Text(stringResource(feature.resId)) },
+                selected = currentRoute == feature.route,
+                onClick = {
+                    if (currentRoute != feature.route)
+                        feature.navigateToFeature(navController)
+                },
+                icon = {
+                    Icon(
+                        feature.imageVector,
+                        "Menu icon"
+                    )
+                }
+            )
         }
     }
 }

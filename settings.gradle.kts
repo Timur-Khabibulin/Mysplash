@@ -16,7 +16,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "Mysplash"
 include(":app")
-include(":data")
+include(":core:data")
+include(":core:common")
+include(":core:domain")
+include(":core:ui")
+include(":features:user")
 include(":features:topics")
-include(":core")
-include(":domain")
+
