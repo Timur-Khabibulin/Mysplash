@@ -2,18 +2,16 @@ package com.timurkhabibulin.user.user
 
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -27,16 +25,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.timurkhabibulin.core.R
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
+import com.timurkhabibulin.ui.theme.MysplashTheme
+import com.timurkhabibulin.ui.uikit.CollapsibleLayout
+import com.timurkhabibulin.ui.uikit.TopBar
 
 
 @Composable
@@ -50,50 +49,50 @@ internal fun UserScreen(
     userScreenViewModel.loadUser(username)
     val user by userScreenViewModel.user.collectAsState()
 
-    Scaffold(topBar = { TopBar(onBackPressed = onBackPressed) }) { paddingValues ->
-        Column(Modifier.padding(paddingValues)) {
-            UserInfo(user = user)
-            Tabs(
-                onPhotoClick = onPhotoClick,
-                onCollectionClick = onCollectionClick
+    Scaffold(
+        Modifier.fillMaxSize(),
+        topBar = {
+            TopBar(
+                onBackPressed = onBackPressed,
+                onOpenInBrowser = {}
             )
         }
-    }
-}
-
-@Composable
-internal fun TopBar(
-    modifier: Modifier = Modifier,
-    title: String? = null,
-    onBackPressed: () -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Back icon",
-            Modifier.clickable { onBackPressed() }
-        )
-        title?.let {
-            Text(text = it, style = MaterialTheme.typography.titleLarge)
+    ) { paddingValues ->
+        if (user != null) {
+            CollapsibleLayout(
+                Modifier.padding(paddingValues),
+                collapsingHeader = {
+                    UserInfo(
+                        user = user!!,
+                        modifier = it
+                    )
+                },
+                content = {
+                    Tabs(
+                        onPhotoClick = onPhotoClick,
+                        onCollectionClick = onCollectionClick
+                    )
+                }
+            )
+        } else {
+            Text(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(20.dp),
+                text = userScreenViewModel.errorMessage.value,
+                style = MaterialTheme.typography.titleSmall
+            )
         }
-        Icon(
-            painter = painterResource(R.drawable.arrow_square_up),
-            contentDescription = "Open in browser icon"
-        )
+
     }
+
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 internal fun UserInfoPreview() {
-    com.timurkhabibulin.ui.theme.MysplashTheme {
+    MysplashTheme {
         Surface {
             UserInfo(User.DefaultUser)
         }
@@ -101,9 +100,14 @@ internal fun UserInfoPreview() {
 }
 
 @Composable
-internal fun UserInfo(user: User, modifier: Modifier = Modifier) {
+internal fun UserInfo(
+    user: User,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier.padding(10.dp),
+        modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         UserBasicInfo(user = user)
@@ -115,15 +119,19 @@ internal fun UserInfo(user: User, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.Start,
         ) {
             user.location?.let {
-                Text(text = it, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                )
             }
             user.bio?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
-        /*        user.badge?.let {
-                    UserBadge(it)
-                }*/
     }
 }
 
@@ -132,6 +140,7 @@ internal fun UserBasicInfo(user: User) {
     Row(
         Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .padding(start = 20.dp, end = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
@@ -166,33 +175,6 @@ internal fun UserBasicInfo(user: User) {
     }
 }
 
-/*@Composable
-internal fun UserBadge(badge: Badge) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp*//*, vertical = 5.dp*//*)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(size = 10.dp)
-                )
-                .padding(horizontal = 20.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = badge.title, style = MaterialTheme.typography.bodyMedium)
-            Icon(
-                painterResource(long_arrow),
-                contentDescription = ""
-            )
-        }
-    }
-}*/
-
 @Composable
 internal fun Param(name: String, value: String) {
     Row(
@@ -201,8 +183,8 @@ internal fun Param(name: String, value: String) {
     ) {
         Text(
             text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.secondaryContainer
         )
         Text(text = value, style = MaterialTheme.typography.labelMedium)
     }

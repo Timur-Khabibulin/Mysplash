@@ -1,14 +1,15 @@
 package com.timurkhabibulin.user.user
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -34,9 +35,9 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import com.timurkhabibulin.domain.entities.Photo
-import com.timurkhabibulin.ui.util.CollectionCard
-import com.timurkhabibulin.ui.util.PagingPullRefresh
-import com.timurkhabibulin.ui.util.PhotoCard
+import com.timurkhabibulin.ui.uikit.CollectionCard
+import com.timurkhabibulin.ui.uikit.PagingPullRefresh
+import com.timurkhabibulin.ui.uikit.PhotoView
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -50,7 +51,7 @@ internal fun Tabs(
     val pagerState = rememberPagerState(pageCount = { tabs.count() })
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -88,9 +89,12 @@ internal fun CustomTabRow(
     val scope = rememberCoroutineScope()
     TabRow(
         modifier = Modifier
-            .padding(top = 10.dp, bottom = 10.dp)
-            .clip(shape = RoundedCornerShape(size = 10.dp)),
-        containerColor = MaterialTheme.colorScheme.secondary,
+            .clip(shape = RoundedCornerShape(size = 10.dp))
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.secondaryContainer),
+                RoundedCornerShape(size = 10.dp)
+            ),
+        containerColor = MaterialTheme.colorScheme.surface,
         selectedTabIndex = selectedIndex,
         indicator = { tabPositions ->
             UserTabIndicator(tabPositions[selectedIndex])
@@ -124,46 +128,58 @@ internal fun UserTabsContent(
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp),
         pageSpacing = 20.dp
     ) { page ->
+
         when (page) {
 
             0 -> PagingPullRefresh(
                 items = userPhotos,
-            ) { photos ->
-                PhotosGrid(photos = photos) { photo ->
-                    PhotoCard(
-                        photo = photo,
-                        onPhotoClick = { onPhotoClick(photo) }
-                    )
-                }
-            }
-
-            1 -> PagingPullRefresh(items = userLikedPhotos) { photos ->
-                PhotosGrid(photos = photos) { photo ->
-                    PhotoCard(
-                        photo = photo,
-                        onPhotoClick = { onPhotoClick(photo) }
-                    )
-                }
-            }
-
-            2 -> PagingPullRefresh(items = userCollections) { collections ->
-                LazyColumn(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
-                ) {
-                    items(collections.itemCount) { index ->
-                        val collection = collections[index] ?: return@items
-                        CollectionCard(
-                            collection = collection,
-                            onClick = { onCollectionClick(it.id) }
+                content = { photos ->
+                    PhotosGrid(
+                        photos = photos
+                    ) { photo ->
+                        PhotoView(
+                            photo = photo,
+                            onPhotoClick = { onPhotoClick(photo) }
                         )
                     }
                 }
-            }
+            )
+
+            1 -> PagingPullRefresh(
+                items = userLikedPhotos,
+                content = { photos ->
+                    PhotosGrid(
+                        photos = photos
+                    ) { photo ->
+                        PhotoView(
+                            photo = photo,
+                            onPhotoClick = { onPhotoClick(photo) }
+                        )
+                    }
+                }
+            )
+
+            2 -> PagingPullRefresh(
+                items = userCollections,
+                content = { collections ->
+                    LazyColumn(
+                        Modifier
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
+                    ) {
+                        items(collections.itemCount) { index ->
+                            val collection = collections[index] ?: return@items
+                            CollectionCard(
+                                collection = collection,
+                                onClick = { onCollectionClick(it.id) }
+                            )
+                        }
+                    }
+                }
+            )
         }
 
     }
@@ -176,8 +192,7 @@ fun PhotosGrid(
 ) {
     LazyVerticalStaggeredGrid(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+            .fillMaxSize(),
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 15.dp,
         horizontalArrangement = Arrangement.spacedBy(15.dp),
@@ -197,7 +212,7 @@ internal fun UserTabIndicator(tabPosition: TabPosition) {
             .tabIndicatorOffset(tabPosition)
             .fillMaxSize()
             .background(
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondaryContainer,
                 RoundedCornerShape(10.dp)
             )
             .zIndex(-1f),
@@ -216,7 +231,7 @@ internal fun UserCustomTab(
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.primary
             )
         },
         selected = selected,

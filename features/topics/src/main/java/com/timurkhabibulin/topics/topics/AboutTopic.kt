@@ -41,7 +41,7 @@ internal fun AboutTopic(topic: Topic) {
         contentAlignment = Alignment.BottomStart,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp/*bottomEnd = 10.dp, bottomStart = 10.dp*/))
+            .clip(RoundedCornerShape(10.dp))
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -63,7 +63,7 @@ internal fun AboutTopic(topic: Topic) {
             Text(
                 text = topic.title,
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineLarge,
 
                 color = Color.White
             )

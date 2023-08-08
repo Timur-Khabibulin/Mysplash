@@ -1,8 +1,5 @@
 package com.timurkhabibulin.user.user
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -18,9 +15,9 @@ internal const val userNameArg = "username"
 object UserApi : FeatureApi {
     override val route: String
         get() = userRoute
-    override val imageVector: ImageVector
-        get() = Icons.Default.AccountCircle
-    override val resId: Int
+    override val iconResId: Int
+        get() = R.drawable.user
+    override val titleResId: Int
         get() = R.string.user
 
     override fun navigateToFeature(navController: NavController) {

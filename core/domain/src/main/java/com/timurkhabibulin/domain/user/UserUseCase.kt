@@ -6,8 +6,7 @@ import androidx.paging.PagingData
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -19,11 +18,8 @@ class UserUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-
-    suspend fun getUser(username: String): User {
-        val result = userRepository.getUser(username)
-        return if (result.isSuccess()) result.asSuccess().value
-        else User.DefaultUser
+    suspend fun getUser(username: String): Result<User> {
+        return userRepository.getUser(username)
     }
 
     fun getUserPhotos(username: String): Flow<PagingData<Photo>> {

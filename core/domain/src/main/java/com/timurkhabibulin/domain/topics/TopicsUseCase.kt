@@ -6,8 +6,7 @@ import androidx.paging.PagingData
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -19,10 +18,9 @@ class TopicsUseCase @Inject constructor(
     private val topicsRepository: TopicsRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-    suspend fun getTopics(): List<Topic> {
-        val result = topicsRepository.getTopics()
-        return if (result.isSuccess()) result.asSuccess().value
-        else listOf()
+
+    suspend fun getTopics(): Result<List<Topic>> {
+        return topicsRepository.getTopics()
     }
 
     fun getPhotos(topicId: String): Flow<PagingData<Photo>> {

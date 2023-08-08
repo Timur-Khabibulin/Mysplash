@@ -3,7 +3,6 @@ package com.timurkhabibulin.topics.photo
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,10 +47,11 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.R.drawable
-import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
-import com.timurkhabibulin.ui.util.UserView
+import com.timurkhabibulin.ui.theme.MysplashTheme
+import com.timurkhabibulin.ui.uikit.TopBar
+import com.timurkhabibulin.ui.uikit.UserViewHorizontal
 
 
 @Composable
@@ -108,8 +107,13 @@ internal fun PhotoInfoScreen(
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
             sheetPeekHeight = 120.dp,
-            sheetContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            topBar = { TopBar(onBackPressed) },
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                TopBar(
+                    onBackPressed = onBackPressed,
+                    onOpenInBrowser = {}
+                )
+            },
             sheetContent = {
                 Column(
                     Modifier
@@ -118,7 +122,7 @@ internal fun PhotoInfoScreen(
                     verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    UserView(
+                    UserViewHorizontal(
                         modifier = Modifier.fillMaxWidth(),
                         photo = photo
                     ) { user ->
@@ -131,7 +135,7 @@ internal fun PhotoInfoScreen(
                         Text(
                             text = it,
                             Modifier.width(280.dp),
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Start
                         )
                     }
@@ -152,27 +156,6 @@ internal fun PhotoInfoScreen(
             onLikePhoto = {},
             onAddPhoto = {},
             onDownloadPhoto = { onDownloadPhoto(photo) }
-        )
-    }
-}
-
-@Composable
-internal fun TopBar(onBackPressed: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 25.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Back icon",
-            Modifier.clickable { onBackPressed() }
-        )
-        Icon(
-            painter = painterResource(drawable.arrow_square_up),
-            contentDescription = "Open in browser icon"
         )
     }
 }
@@ -252,7 +235,9 @@ internal fun FABs(
     ) {
         FloatingActionButton(
             shape = CircleShape,
-            onClick = { onLikePhoto() }
+            onClick = { onLikePhoto() },
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 imageVector = Icons.Outlined.FavoriteBorder,
@@ -262,7 +247,9 @@ internal fun FABs(
 
         FloatingActionButton(
             shape = CircleShape,
-            onClick = { onAddPhoto() }
+            onClick = { onAddPhoto() },
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -273,8 +260,8 @@ internal fun FABs(
         FloatingActionButton(
             shape = CircleShape,
             onClick = { onDownloadPhoto() },
-            containerColor = MaterialTheme.colorScheme.inverseSurface,
-            contentColor = MaterialTheme.colorScheme.inversePrimary
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.surface
         ) {
             Icon(
                 painter = painterResource(drawable.download_02),
@@ -291,7 +278,15 @@ internal fun ExifParameter(name: String, value: String) {
         verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
-        Text(text = name, style = MaterialTheme.typography.titleSmall)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = name,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primaryContainer
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }

@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.timurkhabibulin.domain.entities.User
 
-internal const val photoRoute = "photo_route"
-internal const val photoIdArg = "photoId"
+private const val PHOTO_ROUTE = "photo_route"
+private const val PHOTO_ID_ARG = "photoId"
 
 fun NavGraphBuilder.photoScreen(
     isFullScreen: (Boolean) -> Unit,
@@ -16,12 +16,12 @@ fun NavGraphBuilder.photoScreen(
     onBackClick: () -> Unit
 ) {
     composable(
-        "$photoRoute/{$photoIdArg}",
+        "$PHOTO_ROUTE/{$PHOTO_ID_ARG}",
         arguments = listOf(
-            navArgument(photoIdArg) { type = NavType.StringType },
+            navArgument(PHOTO_ID_ARG) { type = NavType.StringType },
         )
     ) {
-        val photoId = it.arguments?.getString(photoIdArg) ?: ""
+        val photoId = it.arguments?.getString(PHOTO_ID_ARG) ?: ""
 
         isFullScreen(true)
         PhotoScreen(
@@ -33,5 +33,5 @@ fun NavGraphBuilder.photoScreen(
 }
 
 fun NavController.navigateToPhoto(photoId: String) {
-    navigate("$photoRoute/$photoId")
+    navigate("$PHOTO_ROUTE/$photoId")
 }

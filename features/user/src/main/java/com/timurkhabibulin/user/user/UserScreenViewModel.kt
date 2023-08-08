@@ -1,5 +1,7 @@
 package com.timurkhabibulin.user.user
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -8,6 +10,9 @@ import com.timurkhabibulin.domain.collections.CollectionsUseCase
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
+import com.timurkhabibulin.domain.result.asFailure
+import com.timurkhabibulin.domain.result.asSuccess
+import com.timurkhabibulin.domain.result.isSuccess
 import com.timurkhabibulin.domain.user.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +31,11 @@ internal class UserScreenViewModel @Inject constructor(
     private val collectionsUseCase: CollectionsUseCase
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow(User.DefaultUser)
-    val user: StateFlow<User> = _user
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user
+
+    private val _errorMessage = mutableStateOf("")
+    val errorMessage: State<String> = _errorMessage
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val userPhotos: Flow<PagingData<Photo>> = user
@@ -50,7 +58,14 @@ internal class UserScreenViewModel @Inject constructor(
 
     fun loadUser(username: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _user.emit(userUseCase.getUser(username))
+            val result = userUseCase.getUser(username)
+
+            launch(Dispatchers.Main) {
+                if (result.isSuccess())
+                    _user.value = result.asSuccess().value
+                else _errorMessage.value = result.asFailure().error?.message ?: ""
+            }
+
         }
     }
 }

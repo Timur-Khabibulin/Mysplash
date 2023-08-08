@@ -1,4 +1,4 @@
-package com.timurkhabibulin.ui.util
+package com.timurkhabibulin.ui.uikit
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +19,15 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun <T : Any> PagingPullRefresh(
     modifier: Modifier = Modifier,
     items: Flow<PagingData<T>>,
-    itemsList: @Composable (LazyPagingItems<T>) -> Unit
+    content: @Composable (LazyPagingItems<T>) -> Unit,
+    onRefresh: (() -> Unit)? = null
 ) {
     val pagingItems = items.collectAsLazyPagingItems()
 
@@ -33,6 +36,7 @@ fun <T : Any> PagingPullRefresh(
         refreshing = refreshing,
         onRefresh = {
             pagingItems.refresh()
+            onRefresh?.invoke()
         }
     )
 
@@ -44,7 +48,7 @@ fun <T : Any> PagingPullRefresh(
         if (pagingItems.loadState.refresh is LoadState.Error) {
             val error = (pagingItems.loadState.refresh as LoadState.Error).error
             OnLoadingError(error.message ?: "")
-        } else itemsList(pagingItems)
+        } else content(pagingItems)
 
         PullRefreshIndicator(
             modifier = Modifier.align(alignment = Alignment.TopCenter),

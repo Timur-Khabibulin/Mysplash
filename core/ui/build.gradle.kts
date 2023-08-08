@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.2.0")
     implementation(platform("androidx.compose:compose-bom:2023.06.01"))
     implementation("androidx.compose.material:material:1.6.0-alpha02")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0-alpha02")
 
 
     testImplementation("junit:junit:4.13.2")
