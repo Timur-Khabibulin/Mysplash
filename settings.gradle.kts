@@ -22,6 +22,5 @@ include(":core:domain")
 include(":core:ui")
 include(":features:user")
 include(":features:topics")
-
 include(":features:home")
 include(":features:search")

@@ -66,6 +66,8 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:ui"))
     implementation(project(":features:topics"))
+    implementation(project(":features:home"))
+    implementation(project(":features:search"))
 
     implementation("androidx.core:core-ktx:1.12.0-beta01")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
