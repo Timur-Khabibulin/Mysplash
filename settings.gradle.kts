@@ -24,3 +24,4 @@ include(":features:user")
 include(":features:topics")
 
 include(":features:home")
+include(":features:search")

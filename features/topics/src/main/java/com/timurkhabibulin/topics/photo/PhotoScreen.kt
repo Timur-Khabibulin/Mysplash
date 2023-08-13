@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -101,10 +104,13 @@ internal fun PhotoInfoScreen(
     onDownloadPhoto: (Photo) -> Unit,
     onUserClick: (User) -> Unit
 ) {
+
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     Box(contentAlignment = Alignment.BottomEnd) {
+
         BottomSheetScaffold(
+            modifier = Modifier.offset(0.dp),
             scaffoldState = scaffoldState,
             sheetPeekHeight = 120.dp,
             containerColor = MaterialTheme.colorScheme.background,
@@ -118,6 +124,7 @@ internal fun PhotoInfoScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         .padding(start = 25.dp, end = 20.dp, bottom = 25.dp),
                     verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.Start,

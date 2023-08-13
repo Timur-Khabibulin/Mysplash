@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.timurkhabibulin.home.HomeApi
 import com.timurkhabibulin.home.homeScreen
+import com.timurkhabibulin.search.searchScreen
 import com.timurkhabibulin.topics.photo.navigateToPhoto
 import com.timurkhabibulin.topics.photo.photoScreen
 import com.timurkhabibulin.topics.topics.navigateToTopic
@@ -37,6 +38,10 @@ fun MainNavHost(
             isFullScreen = isFullScreen,
             onUserClick = { user -> navController.navigateToUser(user.username) },
             onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) }
+        )
+
+        searchScreen(
+            isFullScreen = isFullScreen
         )
 
         photoScreen(

@@ -1,0 +1,35 @@
+package com.timurkhabibulin.search
+
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import com.timurkhabibulin.core.FeatureApi
+
+private const val SEARCH_ROUTE = "search_route"
+
+object SearchApi : FeatureApi {
+    override val route: String
+        get() = SEARCH_ROUTE
+    override val iconResId: Int
+        get() = R.drawable.search_sm
+    override val titleResId: Int
+        get() = R.string.search
+
+    override fun navigateToFeature(navController: NavController) {
+        navController.navigateToSearch()
+    }
+}
+
+fun NavGraphBuilder.searchScreen(
+    isFullScreen: (Boolean) -> Unit
+) {
+    composable(SEARCH_ROUTE) {
+        isFullScreen(false)
+
+        SearchScreen()
+    }
+}
+
+fun NavController.navigateToSearch() {
+    navigate(SEARCH_ROUTE)
+}

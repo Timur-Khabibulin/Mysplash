@@ -1,11 +1,7 @@
 package com.timurkhabibulin.topics.topics
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,12 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabPosition
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -39,8 +30,10 @@ import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
+import com.timurkhabibulin.ui.uikit.Tab
 import com.timurkhabibulin.ui.uikit.PagingPullRefresh
 import com.timurkhabibulin.ui.uikit.PhotoCard
+import com.timurkhabibulin.ui.uikit.TabIndicator
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -129,7 +122,7 @@ internal fun ScrollableTab(
         containerColor = MaterialTheme.colorScheme.background
     ) {
         tabs.forEachIndexed { index, topic ->
-            CustomTab(
+            Tab(
                 text = topic.title,
                 selected = pagerState.currentPage == index,
                 onClick = {
@@ -156,9 +149,7 @@ internal fun TabsContent(
         contentPadding = PaddingValues(horizontal = 10.dp)
     ) { page ->
 
-        val photos =
-            /* if (page == 0) topicsScreenViewModel.photos
-             else*/ topicsScreenViewModel.photosByTopic[topics[page].id]
+        val photos = topicsScreenViewModel.photosByTopic[topics[page].id]
             ?: flow { PagingData.empty<Photo>() }
 
         PagingPullRefresh(
@@ -171,11 +162,6 @@ internal fun TabsContent(
                             photo = photo,
                             onPhotoClick = { onNavigateToPhoto(photo) },
                             onUserClick = { user -> onNavigateToUser(user) }
-                            /*           userView = {
-                                           UserViewHorizontal(Modifier.fillMaxWidth(), photo) { user ->
-                                               onNavigateToUser(user)
-                                           }
-                                       }*/
                         )
                     },
                     header = { AboutTopic(topics[page]) }
@@ -201,48 +187,4 @@ internal fun PhotosList(
             photoCard(photo)
         }
     }
-}
-
-@Composable
-internal fun TabIndicator(tabPosition: TabPosition) {
-    Box(
-        modifier = Modifier
-            .tabIndicatorOffset(tabPosition)
-            .padding(horizontal = 5.dp)
-            .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                RoundedCornerShape(100)
-            )
-            .zIndex(-1f),
-    )
-}
-
-@Composable
-internal fun CustomTab(
-    text: String,
-    selected: Boolean,
-    onClick: suspend () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    Tab(
-        modifier = Modifier
-            .padding(horizontal = 5.dp)
-            .border(
-                BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
-                RoundedCornerShape(100)
-            ),
-        text = {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        selected = selected,
-        onClick = {
-            scope.launch {
-                onClick()
-            }
-        }
-    )
 }
