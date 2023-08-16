@@ -4,6 +4,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.timurkhabibulin.core.FeatureApi
+import com.timurkhabibulin.domain.entities.Photo
+import com.timurkhabibulin.domain.entities.User
 
 private const val SEARCH_ROUTE = "search_route"
 
@@ -21,12 +23,19 @@ object SearchApi : FeatureApi {
 }
 
 fun NavGraphBuilder.searchScreen(
-    isFullScreen: (Boolean) -> Unit
+    isFullScreen: (Boolean) -> Unit,
+    onPhotoClick: (Photo) -> Unit,
+    onUserClick: (User) -> Unit,
+    onCollectionClick: (String) -> Unit
 ) {
     composable(SEARCH_ROUTE) {
         isFullScreen(false)
 
-        SearchScreen()
+        SearchScreen(
+            onPhotoClick = onPhotoClick,
+            onUserClick = onUserClick,
+            onCollectionClick = onCollectionClick
+        )
     }
 }
 

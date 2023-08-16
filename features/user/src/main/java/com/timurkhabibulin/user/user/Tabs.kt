@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -33,10 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.ui.uikit.CollectionCard
-import com.timurkhabibulin.ui.uikit.PagingPullRefresh
+import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalColumn
+import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalStaggeredGrid
 import com.timurkhabibulin.ui.uikit.PhotoView
 import kotlinx.coroutines.launch
 
@@ -134,75 +132,45 @@ internal fun UserTabsContent(
 
         when (page) {
 
-            0 -> PagingPullRefresh(
+            0 -> PagingPullRefreshVerticalStaggeredGrid(
                 items = userPhotos,
-                content = { photos ->
-                    PhotosGrid(
-                        photos = photos
-                    ) { photo ->
-                        PhotoView(
-                            photo = photo,
-                            onPhotoClick = { onPhotoClick(photo) }
-                        )
-                    }
-                }
+                itemCard = { photo ->
+                    PhotoView(
+                        photo = photo,
+                        onPhotoClick = { onPhotoClick(photo) }
+                    )
+                },
+                columns = StaggeredGridCells.Adaptive(160.dp),
+                verticalItemSpacing = 15.dp,
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
             )
 
-            1 -> PagingPullRefresh(
+            1 -> PagingPullRefreshVerticalStaggeredGrid(
                 items = userLikedPhotos,
-                content = { photos ->
-                    PhotosGrid(
-                        photos = photos
-                    ) { photo ->
-                        PhotoView(
-                            photo = photo,
-                            onPhotoClick = { onPhotoClick(photo) }
-                        )
-                    }
-                }
+                itemCard = { photo ->
+                    PhotoView(
+                        photo = photo,
+                        onPhotoClick = { onPhotoClick(photo) }
+                    )
+                },
+                columns = StaggeredGridCells.Adaptive(160.dp),
+                verticalItemSpacing = 15.dp,
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
             )
 
-            2 -> PagingPullRefresh(
+            2 -> PagingPullRefreshVerticalColumn(
                 items = userCollections,
-                content = { collections ->
-                    LazyColumn(
-                        Modifier
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
-                    ) {
-                        items(collections.itemCount) { index ->
-                            val collection = collections[index] ?: return@items
-                            CollectionCard(
-                                collection = collection,
-                                onClick = { onCollectionClick(it.id) }
-                            )
-                        }
-                    }
-                }
+                itemCard = { collection ->
+                    CollectionCard(
+                        collection = collection,
+                        onClick = { onCollectionClick(it.id) }
+                    )
+                },
+                space = 20.dp
             )
         }
 
     }
-}
-
-@Composable
-fun PhotosGrid(
-    photos: LazyPagingItems<Photo>,
-    photoCard: @Composable (Photo) -> Unit
-) {
-    LazyVerticalStaggeredGrid(
-        modifier = Modifier
-            .fillMaxSize(),
-        columns = StaggeredGridCells.Fixed(2),
-        verticalItemSpacing = 15.dp,
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        content = {
-            items(photos.itemCount) { index ->
-                val photo = photos[index] ?: return@items
-                photoCard(photo)
-            }
-        }
-    )
 }
 
 @Composable

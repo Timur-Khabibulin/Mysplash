@@ -18,7 +18,8 @@ data class User(
     val following_count: Int,
     val profile_image: Urls,
     val badge: Badge?,
-    val links: Links
+    val links: Links,
+    val photos: List<Photo>?
 ) : Parcelable {
     companion object {
         val DefaultUser = User(
@@ -36,7 +37,8 @@ data class User(
             2,
             Urls(),
             Badge.Default,
-            Links()
+            Links(),
+            emptyList()
         )
     }
 }

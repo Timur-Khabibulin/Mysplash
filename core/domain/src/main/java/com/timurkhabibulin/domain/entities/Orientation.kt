@@ -1,6 +1,8 @@
 package com.timurkhabibulin.domain.entities
 
-enum class Orientation(name: String) {
+enum class Orientation(
+   val orientationName: String
+) {
     LANDSCAPE("landscape"),
     PORTRAIT("portrait"),
     SQUARISH("squarish")

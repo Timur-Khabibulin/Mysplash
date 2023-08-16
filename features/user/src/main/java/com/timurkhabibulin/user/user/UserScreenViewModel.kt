@@ -37,24 +37,17 @@ internal class UserScreenViewModel @Inject constructor(
     private val _errorMessage = mutableStateOf("")
     val errorMessage: State<String> = _errorMessage
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val userPhotos: Flow<PagingData<Photo>> = user
-        .filterNotNull()
-        .flatMapLatest {
-            userUseCase.getUserPhotos(it.username).cachedIn(viewModelScope)
-        }
+    val userPhotos: Flow<PagingData<Photo>> = user.makeRequest {
+        userUseCase.getUserPhotos(it.username)
+    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val userLikedPhotos: Flow<PagingData<Photo>> = user
-        .filterNotNull()
-        .flatMapLatest { userUseCase.getUserLikedPhotos(it.username) }
-        .cachedIn(viewModelScope)
+    val userLikedPhotos: Flow<PagingData<Photo>> = user.makeRequest {
+        userUseCase.getUserLikedPhotos(it.username)
+    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val userCollections: Flow<PagingData<Collection>> = user
-        .filterNotNull()
-        .flatMapLatest { collectionsUseCase.getUserCollections(it.username) }
-        .cachedIn(viewModelScope)
+    val userCollections: Flow<PagingData<Collection>> = user.makeRequest {
+        collectionsUseCase.getUserCollections(it.username)
+    }
 
     fun loadUser(username: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,5 +60,12 @@ internal class UserScreenViewModel @Inject constructor(
             }
 
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun <T : Any> StateFlow<User?>.makeRequest(request: (User) -> Flow<PagingData<T>>): Flow<PagingData<T>> {
+        return this.filterNotNull()
+            .flatMapLatest { request(it) }
+            .cachedIn(viewModelScope)
     }
 }

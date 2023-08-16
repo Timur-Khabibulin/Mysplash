@@ -3,9 +3,8 @@ package com.timurkhabibulin.user.collections
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
-import com.timurkhabibulin.ui.uikit.PagingPullRefresh
+import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalStaggeredGrid
 import com.timurkhabibulin.ui.uikit.PhotoCard
 import com.timurkhabibulin.ui.uikit.TopBar
 
@@ -46,35 +45,31 @@ internal fun CollectionPhotosScreen(
             )
         }
     ) {
-        PagingPullRefresh(
+        Column(
             Modifier
+                .fillMaxSize()
                 .padding(it)
-                .padding(horizontal = 10.dp)
-                .fillMaxSize(),
-            items = photos,
-            content = {
-                LazyColumn(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    collection?.let {
-                        item { CollectionInfo(it) }
-                    }
-
-                    items(it.itemCount) { index ->
-                        val photo = it[index] ?: return@items
-
-                        PhotoCard(
-                            photo = photo,
-                            onPhotoClick = onPhotoClick,
-                            onUserClick = onUserClick
-                        )
-                    }
-                }
+                .padding(horizontal = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            collection?.let { collection ->
+                CollectionInfo(collection)
             }
-        )
+            PagingPullRefreshVerticalStaggeredGrid(
+                items = photos,
+                itemCard = { photo ->
+                    PhotoCard(
+                        photo = photo,
+                        onPhotoClick = onPhotoClick,
+                        onUserClick = onUserClick
+                    )
+                },
+                columns = StaggeredGridCells.Adaptive(300.dp),
+                verticalItemSpacing = 20.dp,
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+            )
+        }
     }
 }
 

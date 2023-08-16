@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.CollapsibleLayout
-import com.timurkhabibulin.ui.uikit.PagingPullRefresh
+import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalStaggeredGrid
 import com.timurkhabibulin.ui.uikit.PhotoCard
 import com.timurkhabibulin.ui.uikit.TopicCard
 import com.timurkhabibulin.ui.uikit.vertical
@@ -47,12 +47,12 @@ internal fun HomeScreen(
     homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val exploreDefaultHeight = 139.dp
-    val lazyListState = rememberLazyListState()
+    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
     val canCollapse = rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(lazyListState) {
-        snapshotFlow { lazyListState.firstVisibleItemIndex }.collect {
-            canCollapse.value = lazyListState.firstVisibleItemIndex == 0
+    LaunchedEffect(lazyStaggeredGridState) {
+        snapshotFlow { lazyStaggeredGridState.firstVisibleItemIndex }.collect {
+            canCollapse.value = lazyStaggeredGridState.firstVisibleItemIndex == 0
         }
     }
 
@@ -71,7 +71,7 @@ internal fun HomeScreen(
                 photos = homeScreenViewModel.photos,
                 onPhotoClick = onPhotoClick,
                 onUserClick = onUserClick,
-                lazyListState = lazyListState
+                lazyStaggeredGridState = lazyStaggeredGridState
             )
         },
         collapsingHeaderDefaultHeight = exploreDefaultHeight,
@@ -125,7 +125,7 @@ internal fun EditorialFeedPreview() {
     MysplashTheme {
         EditorialFeed(Modifier, photos = flow {
             emit(PagingData.from(listOf(Photo.Default, Photo.Default)))
-        }, onPhotoClick = {}, onUserClick = {}, LazyListState())
+        }, onPhotoClick = {}, onUserClick = {}, rememberLazyStaggeredGridState())
     }
 }
 
@@ -135,7 +135,7 @@ internal fun EditorialFeed(
     photos: Flow<PagingData<Photo>>,
     onPhotoClick: (Photo) -> Unit,
     onUserClick: (User) -> Unit,
-    lazyListState: LazyListState
+    lazyStaggeredGridState: LazyStaggeredGridState
 ) {
     Column(
         modifier.fillMaxSize(),
@@ -148,21 +148,19 @@ internal fun EditorialFeed(
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Right
         )
-        PagingPullRefresh(items = photos, content = { lazyPagingItems ->
-            LazyColumn(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                state = lazyListState
-            ) {
-                items(lazyPagingItems.itemCount) { index ->
-                    val photo = lazyPagingItems[index] ?: return@items
-
-                    PhotoCard(
-                        photo = photo, onPhotoClick = onPhotoClick, onUserClick = onUserClick
-                    )
-                }
-            }
-        })
+        PagingPullRefreshVerticalStaggeredGrid(
+            items = photos,
+            itemCard = { photo ->
+                PhotoCard(
+                    photo = photo,
+                    onPhotoClick = onPhotoClick,
+                    onUserClick = onUserClick
+                )
+            },
+            columns = StaggeredGridCells.Adaptive(300.dp),
+            verticalItemSpacing = 20.dp,
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            state = lazyStaggeredGridState
+        )
     }
 }

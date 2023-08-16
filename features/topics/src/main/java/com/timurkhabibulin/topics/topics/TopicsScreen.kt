@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -25,14 +24,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
-import com.timurkhabibulin.ui.uikit.Tab
-import com.timurkhabibulin.ui.uikit.PagingPullRefresh
+import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalColumn
 import com.timurkhabibulin.ui.uikit.PhotoCard
+import com.timurkhabibulin.ui.uikit.Tab
 import com.timurkhabibulin.ui.uikit.TabIndicator
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -152,39 +150,17 @@ internal fun TabsContent(
         val photos = topicsScreenViewModel.photosByTopic[topics[page].id]
             ?: flow { PagingData.empty<Photo>() }
 
-        PagingPullRefresh(
+        PagingPullRefreshVerticalColumn(
             items = photos,
-            content = { lazyPagingItems ->
-                PhotosList(
-                    photos = lazyPagingItems,
-                    photoCard = { photo ->
-                        PhotoCard(
-                            photo = photo,
-                            onPhotoClick = { onNavigateToPhoto(photo) },
-                            onUserClick = { user -> onNavigateToUser(user) }
-                        )
-                    },
-                    header = { AboutTopic(topics[page]) }
+            itemCard = { photo ->
+                PhotoCard(
+                    photo = photo,
+                    onPhotoClick = { onNavigateToPhoto(photo) },
+                    onUserClick = { user -> onNavigateToUser(user) }
                 )
-            }
+            },
+            space = 20.dp,
+            header = { AboutTopic(topics[page]) }
         )
-    }
-}
-
-@Composable
-internal fun PhotosList(
-    photos: LazyPagingItems<Photo>,
-    photoCard: @Composable (Photo) -> Unit,
-    header: (@Composable () -> Unit)? = null,
-) {
-    LazyColumn(
-        Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        header?.let { item { it() } }
-        items(photos.itemCount) { index ->
-            val photo = photos[index] ?: return@items
-            photoCard(photo)
-        }
     }
 }

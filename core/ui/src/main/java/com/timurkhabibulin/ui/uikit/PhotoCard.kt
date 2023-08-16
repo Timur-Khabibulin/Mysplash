@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,11 +44,11 @@ fun PhotoCard(
     onPhotoClick: (Photo) -> Unit,
     onUserClick: (User) -> Unit
 ) {
-/*    PhotoCardVertical(
-        photo = photo,
-        onPhotoClick = onPhotoClick,
-        onUserClick = onUserClick
-    )*/
+    /*    PhotoCardVertical(
+            photo = photo,
+            onPhotoClick = onPhotoClick,
+            onUserClick = onUserClick
+        )*/
     PhotoCardHorizontal(
         photo = photo,
         onPhotoClick = onPhotoClick,
@@ -83,7 +86,11 @@ private fun PhotoCardHorizontal(
         horizontalAlignment = Alignment.Start,
         modifier = modifier.fillMaxWidth()
     ) {
-        UserViewHorizontal(photo = photo, onUserClick = onUserClick)
+        UserViewHorizontal(
+            modifier = Modifier.fillMaxWidth(),
+            photo = photo,
+            onUserClick = onUserClick
+        )
         PhotoView(photo) { ph -> onPhotoClick(ph) }
     }
 }
@@ -92,20 +99,26 @@ private fun PhotoCardHorizontal(
 fun PhotoView(
     photo: Photo,
     modifier: Modifier = Modifier,
-    onPhotoClick: (Photo) -> Unit
+    keepPhotoAspectRatio: Boolean = true,
+    onPhotoClick: (Photo) -> Unit,
 ) {
     val ratio = photo.width.toFloat() / photo.height
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(photo.urls.regular)
             .diskCachePolicy(CachePolicy.ENABLED)
-            .placeholder(ColorDrawable(photo.color!!.toColorInt()))
+            .placeholder(ColorDrawable(photo.color?.toColorInt() ?: Color.Black.toArgb()))
             .crossfade(250)
             .build(),
         contentDescription = "Image",
         modifier = modifier
-            .aspectRatio(if (ratio > 0) ratio else 1 / ratio)
+            .then(
+                if (keepPhotoAspectRatio)
+                    Modifier.aspectRatio(if (ratio > 0) ratio else 1 / ratio)
+                else Modifier
+            )
             .clip(RoundedCornerShape(size = 10.dp))
-            .clickable(onClick = { onPhotoClick(photo) })
+            .clickable(onClick = { onPhotoClick(photo) }),
+        contentScale = ContentScale.Crop
     )
 }

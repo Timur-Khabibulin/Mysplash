@@ -41,7 +41,10 @@ fun MainNavHost(
         )
 
         searchScreen(
-            isFullScreen = isFullScreen
+            isFullScreen = isFullScreen,
+            onUserClick = { user -> navController.navigateToUser(user.username) },
+            onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) },
+            onCollectionClick = { id -> navController.navigateToCollectionPhotos(id) }
         )
 
         photoScreen(

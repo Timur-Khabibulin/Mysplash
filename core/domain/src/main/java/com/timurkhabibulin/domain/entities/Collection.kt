@@ -1,5 +1,9 @@
 package com.timurkhabibulin.domain.entities
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Collection(
     val id: String,
     val title: String,
@@ -14,7 +18,7 @@ data class Collection(
     val cover_photo: Photo?,
     val user: User?,
     val links: Links
-) {
+) : Parcelable {
     companion object {
         val Default = Collection(
             "206",
