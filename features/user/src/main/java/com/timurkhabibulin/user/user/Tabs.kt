@@ -27,15 +27,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.timurkhabibulin.domain.entities.Photo
+import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.CollectionCard
 import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalColumn
 import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalStaggeredGrid
 import com.timurkhabibulin.ui.uikit.PhotoView
+import com.timurkhabibulin.user.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -45,7 +48,11 @@ internal fun Tabs(
     onPhotoClick: (Photo) -> Unit,
     onCollectionClick: (String) -> Unit
 ) {
-    val tabs = listOf("Photos", "Likes", "Collections")
+    val tabs = listOf(
+        stringResource(R.string.photos),
+        stringResource(R.string.likes),
+        stringResource(R.string.collections)
+    )
     val pagerState = rememberPagerState(pageCount = { tabs.count() })
 
     Column(
@@ -69,10 +76,14 @@ internal fun Tabs(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun CustomTabRowPreview() {
-    com.timurkhabibulin.ui.theme.MysplashTheme {
+   MysplashTheme {
         CustomTabRow(
             selectedIndex = 0,
-            tabs = listOf("Photos", "Likes"),
+            tabs = listOf(
+                stringResource(R.string.photos),
+                stringResource(R.string.likes),
+                stringResource(R.string.collections)
+            ),
             onClick = {}
         )
     }

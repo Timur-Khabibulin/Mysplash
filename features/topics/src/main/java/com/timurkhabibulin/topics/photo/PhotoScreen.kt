@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,17 +40,24 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.R.drawable
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
+import com.timurkhabibulin.domain.result.Result
+import com.timurkhabibulin.domain.result.asFailure
+import com.timurkhabibulin.domain.result.asSuccess
+import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.photos.R
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.TopBar
 import com.timurkhabibulin.ui.uikit.UserViewHorizontal
@@ -65,25 +71,77 @@ internal fun PhotoScreen(
     photoScreenViewModel: PhotoScreenViewModel = hiltViewModel()
 ) {
     photoScreenViewModel.loadPhoto(photoID)
-    val photo: Photo by photoScreenViewModel.photo.collectAsState(initial = Photo.Default)
-    val context = LocalContext.current
-
-    PhotoInfoScreen(
-        photo = photo,
-        onBackPressed = onBackPressed,
-        onDownloadPhoto = { ph ->
-            photoScreenViewModel.downloadPhoto(ph,
-                onStartDownload = {
-                    Toast.makeText(context, "Download has begun", Toast.LENGTH_SHORT).show()
-                },
-                onDownloadComplete = {
-                    Toast.makeText(context, "Download is complete", Toast.LENGTH_SHORT).show()
-                }
-            )
-        },
-        onUserClick = { user -> onNavigateToUser(user) }
+    val result: Result<Photo> by photoScreenViewModel.photo.collectAsStateWithLifecycle(
+        Result.Failure.Error(
+            Throwable()
+        )
     )
+    val context = LocalContext.current
+    val startDownload = stringResource(id = R.string.download_start)
+    val stopDownload = stringResource(id = R.string.download_stop)
 
+    if (result.isSuccess()) {
+        PhotoInfoScreen(
+            photo = result.asSuccess().value,
+            onBackPressed = onBackPressed,
+            onDownloadPhoto = { ph ->
+                photoScreenViewModel.downloadPhoto(
+                    ph,
+                    onStartDownload = {
+                        Toast.makeText(
+                            context, startDownload, Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onDownloadComplete = {
+                        Toast.makeText(
+                            context, stopDownload, Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                )
+            },
+            onUserClick = { user -> onNavigateToUser(user) }
+        )
+    } else {
+        Text(
+            text = "${stringResource(R.string.error_loading)}. ${result.asFailure().error?.message}",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(20.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+
+    /*    PhotoInfoScreen(
+            photo = photo,
+            onBackPressed = onBackPressed,
+            onDownloadPhoto = { ph ->
+                photoScreenViewModel.downloadPhoto(
+                    ph,
+                    onStartDownload = {
+                        Toast.makeText(context, "Download has begun", Toast.LENGTH_SHORT).show()
+                    },
+                    onDownloadComplete = {
+                        Toast.makeText(context, "Download is complete", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            onUserClick = { user -> onNavigateToUser(user) }
+        )*/
+
+    /*    if (photoID.isNotEmpty()) {
+            ShowPhoto(
+                photoID = photoID,
+                onBackPressed = onBackPressed,
+                onNavigateToUser = onNavigateToUser
+            )
+        } else {
+            Text(
+                text = "Error loading",
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(20.dp),
+                textAlign = TextAlign.Center
+            )
+        }*/
 }
 
 @Composable
@@ -216,16 +274,28 @@ internal fun Exif(photo: Photo) {
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.Start,
         ) {
-            ExifParameter("Camera", photo.exif?.model ?: "Unknown")
-            ExifParameter("Focal length", photo.exif?.focal_length ?: "Unknown")
-            ExifParameter("ISO", photo.exif?.iso.toString())
+            ExifParameter(
+                stringResource(R.string.camera),
+                photo.exif?.model ?: stringResource(R.string.unknown)
+            )
+            ExifParameter(
+                stringResource(R.string.focal_length),
+                photo.exif?.focal_length ?: stringResource(R.string.unknown)
+            )
+            ExifParameter(stringResource(R.string.iso), photo.exif?.iso.toString())
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.Start,
         ) {
-            ExifParameter("Aperture", photo.exif?.aperture ?: "Unknown")
-            ExifParameter("Exposure", photo.exif?.exposure_time ?: "Unknown")
+            ExifParameter(
+                stringResource(R.string.aperture),
+                photo.exif?.aperture ?: stringResource(R.string.unknown)
+            )
+            ExifParameter(
+                stringResource(R.string.exposure),
+                photo.exif?.exposure_time ?: stringResource(R.string.unknown)
+            )
         }
     }
 }

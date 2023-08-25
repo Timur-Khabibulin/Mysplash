@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.timurkhabibulin.domain.entities.Color
@@ -38,7 +39,6 @@ import com.timurkhabibulin.ui.theme.MysplashTheme
 @Composable
 internal fun FilterPreview() {
     MysplashTheme {
-
         Filter(
             Modifier,
             Color.BLACK,
@@ -72,7 +72,7 @@ internal fun Filter(
         verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.Top),
         horizontalAlignment = Alignment.Start,
     ) {
-        Text(text = "Filters", style = MaterialTheme.typography.titleLarge)
+        Text(text = stringResource(R.string.filters), style = MaterialTheme.typography.titleLarge)
 
         OrientationFilter(currentOrientation = orientation)
         ColorFilter(currentColor = color)
@@ -86,7 +86,7 @@ internal fun Filter(
         ) {
             Text(
                 modifier = Modifier.clickable { onCancelClick() },
-                text = "Cancel",
+                text = stringResource(R.string.cancel),
                 style = MaterialTheme.typography.titleSmall
             )
 
@@ -99,7 +99,10 @@ internal fun Filter(
                     containerColor = MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Text(text = "Apply", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = stringResource(R.string.apply),
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
         }
     }
@@ -115,7 +118,10 @@ fun OrientationFilter(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
-        Text(text = "Color", style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = stringResource(R.string.orientation),
+            style = MaterialTheme.typography.titleSmall
+        )
 
         Row(
             Modifier
@@ -128,7 +134,10 @@ fun OrientationFilter(
                 selected = currentOrientation.value == null,
                 onClick = { currentOrientation.value = null },
                 label = {
-                    Text(text = "None", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(R.string.none),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 },
                 shape = RoundedCornerShape(50.dp)
             )
@@ -160,7 +169,10 @@ fun ColorFilter(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
-        Text(text = "Color", style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = stringResource(id = R.string.color),
+            style = MaterialTheme.typography.titleSmall
+        )
 
         Row(
             Modifier
@@ -173,7 +185,10 @@ fun ColorFilter(
                 selected = currentColor.value == null,
                 onClick = { currentColor.value = null },
                 label = {
-                    Text(text = "None", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(R.string.none),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 },
                 shape = RoundedCornerShape(50.dp)
             )
@@ -230,7 +245,7 @@ internal fun FilterButton(
             tint = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "Filters",
+            text = stringResource(id = R.string.filters),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )

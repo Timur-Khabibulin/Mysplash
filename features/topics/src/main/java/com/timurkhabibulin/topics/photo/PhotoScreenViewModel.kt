@@ -9,6 +9,7 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.photos.PhotosUseCase
+import com.timurkhabibulin.domain.result.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,7 @@ class PhotoScreenViewModel @Inject constructor(
     private val photoID = MutableStateFlow("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val photo: Flow<Photo> = photoID
+    val photo: Flow<Result<Photo>> = photoID
         .filterNotNull()
         .distinctUntilChanged()
         .flatMapLatest { id -> photosUseCase.getPhoto(id) }

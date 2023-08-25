@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="user">User</string>
+    <string name="photos">Photos</string>
+    <string name="likes">Likes</string>
+    <string name="collections">Collections</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
 </resources>

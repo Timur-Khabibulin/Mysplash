@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -102,7 +103,7 @@ fun Explore(
             modifier = Modifier
                 .vertical()
                 .rotate(-90f),
-            text = "EXPLORE",
+            text = stringResource(R.string.explore),
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -144,7 +145,7 @@ internal fun EditorialFeed(
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "EDITORIAL",
+            text = stringResource(R.string.editorial),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Right
         )

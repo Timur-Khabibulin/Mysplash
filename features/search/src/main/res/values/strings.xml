@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="search">Search</string>
+    <string name="filters">Filters</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="color">Color</string>
+    <string name="none">None</string>
+    <string name="find_something">Find something</string>
+    <string name="lets_find_something_incredible">LET\'S FIND SOMETHING\n INCREDIBLE</string>
+    <string name="category">Category</string>
+    <string name="orientation">Orientation</string>
 </resources>

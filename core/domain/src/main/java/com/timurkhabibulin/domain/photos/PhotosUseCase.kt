@@ -8,8 +8,6 @@ import com.timurkhabibulin.core.StorageService
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.result.Result
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -35,12 +33,8 @@ class PhotosUseCase @Inject constructor(
         ).flow.flowOn(dispatcher)
     }
 
-    fun getPhoto(id: String): Flow<Photo> = flow {
-        val result = photosRepository.getPhoto(id)
-        emit(
-            if (result.isSuccess()) result.asSuccess().value
-            else Photo.Default
-        )
+    fun getPhoto(id: String): Flow<Result<Photo>> = flow {
+        emit(photosRepository.getPhoto(id))
     }
 
     suspend fun trackDownload(id: String) {

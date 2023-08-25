@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +37,7 @@ import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.CollapsibleLayout
 import com.timurkhabibulin.ui.uikit.TopBar
+import com.timurkhabibulin.user.R
 
 
 @Composable
@@ -168,8 +170,8 @@ internal fun UserBasicInfo(user: User) {
                 horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Param("Follow", user.followers_count.toString())
-                Param("Following", user.following_count.toString())
+                Param(stringResource(R.string.follow), user.followers_count.toString())
+                Param(stringResource(R.string.following), user.following_count.toString())
             }
         }
     }
