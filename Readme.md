@@ -7,9 +7,6 @@ download them for free.
 
 ## Getting started
 
-Note that in order to access the Unsplash API,
-you must at a minimum:
-
 * Create a developer account at: https://unsplash.com/developers
 * Copy your app access key
 * Clone the repository and import it to Android Studio
