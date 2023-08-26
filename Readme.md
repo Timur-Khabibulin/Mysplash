@@ -11,6 +11,7 @@ download them for free.
 * Copy your app access key
 * Clone the repository and import it to Android Studio
 * Add the following to your `local.properties`:
+
   `unsplashAccessKey="Your access key"`
 
 ## Technology Stack
