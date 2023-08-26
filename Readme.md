@@ -13,6 +13,17 @@ download them for free.
 * Add the following to your `local.properties`:
   `unsplashAccessKey="Your access key"`
 
+## Technology Stack
+
+* Kotlin
+* Jetpack Compose
+* Clean Architecture
+* MVVM
+* Coroutines
+* Retrofit
+* Pagination
+* Hilt
+
 ## Screenshots
 
 <p align="left">
@@ -26,3 +37,6 @@ download them for free.
 <img src="Screenshots/Collections.jpg" alt="drawing" width="250"/>
 <img src="Screenshots/collectionView.jpg" alt="drawing" width="250"/>
 </p>
+
+
+
