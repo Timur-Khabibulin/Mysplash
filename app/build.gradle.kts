@@ -10,9 +10,8 @@ plugins {
     id("com.google.firebase.crashlytics")
 }
 
-val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
-    load(FileInputStream(keystorePropertiesFile))
+    load(FileInputStream(rootProject.file("local.properties")))
 }
 
 android {

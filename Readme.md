@@ -10,8 +10,13 @@ download them for free.
 * Create a developer account at: https://unsplash.com/developers
 * Copy your app access key
 * Add the following to your `local.properties`:
-
-  `unsplashAccessKey="Your access key"`
+```
+unsplashAccessKey="Your access key"
+storePassword=""
+keyPassword=""
+keyAlias=""
+storeFile=""
+```
 
 To build the app, you need to get a `google-services.json` file from Firebase:
 
