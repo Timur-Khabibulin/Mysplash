@@ -31,10 +31,14 @@ internal class NetworkModule {
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient().newBuilder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                setLevel(HttpLoggingInterceptor.Level.BODY)
-                redactHeader("")
-            })
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    this.addInterceptor(HttpLoggingInterceptor().apply {
+                        setLevel(HttpLoggingInterceptor.Level.BODY)
+                        redactHeader("")
+                    })
+                }
+            }
             .addInterceptor(AuthorizationInterceptor())
             .build()
     }
