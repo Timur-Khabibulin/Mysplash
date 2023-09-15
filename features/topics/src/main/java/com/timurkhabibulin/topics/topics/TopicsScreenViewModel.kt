@@ -1,11 +1,13 @@
 package com.timurkhabibulin.topics.topics
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.core.asSuccessfulCompletion
+import com.timurkhabibulin.core.isLoading
+import com.timurkhabibulin.core.isSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.result.asFailure
@@ -25,37 +27,49 @@ internal class TopicsScreenViewModel @Inject constructor(
     private val topicsUseCase: TopicsUseCase
 ) : ViewModel() {
 
-    private val _topics = MutableStateFlow<List<Topic>?>(null)
-    val topics: StateFlow<List<Topic>?> = _topics
-
-    private val _errorMessage = mutableStateOf("")
-    val errorMessage: State<String> = _errorMessage
+    private val _state = MutableStateFlow<LoadState<List<Topic>>>(LoadState.Loading())
+    val state: StateFlow<LoadState<List<Topic>>> = _state
 
     private val _photosByTopic: MutableMap<String, Flow<PagingData<Photo>>> = mutableMapOf()
     val photosByTopic: Map<String, Flow<PagingData<Photo>>> = _photosByTopic
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = topicsUseCase.getTopics()
+            if (_state.value.isLoading()) {
+                val result = topicsUseCase.getTopics()
 
-            launch(Dispatchers.Main) {
                 if (result.isSuccess()) {
-                    result.asSuccess().value.forEach { topic ->
-                        _photosByTopic[topic.id] =
-                            topicsUseCase.getPhotos(topic.id).cachedIn(viewModelScope)
-
-                    }
-                    _topics.emit(result.asSuccess().value)
-                } else  _errorMessage.value = result.asFailure().error?.message ?: ""
+                    _state.emit(
+                        LoadState.Completed.Success(
+                            result.asSuccess().value
+                        )
+                    )
+                    result.asSuccess().value.bindPhotosToTopics()
+                } else {
+                    _state.emit(
+                        LoadState.Completed.Failure(result.asFailure().error)
+                    )
+                }
             }
         }
     }
 
     fun getIndexOfTopic(topicId: String): Int? {
-        var topicIndex: Int? = null
-        topics.value?.forEachIndexed { index, topic ->
-            if (topic.id == topicId) topicIndex = index
+        if (_state.value.isSuccessfulCompletion()) {
+            _state.value
+                .asSuccessfulCompletion()
+                .value
+                .forEachIndexed { index, topic ->
+                    if (topic.id == topicId) return index
+                }
         }
-        return topicIndex
+        return null
+    }
+
+    private fun List<Topic>.bindPhotosToTopics() {
+        forEach { topic ->
+            _photosByTopic[topic.id] =
+                topicsUseCase.getPhotos(topic.id).cachedIn(viewModelScope)
+        }
     }
 }

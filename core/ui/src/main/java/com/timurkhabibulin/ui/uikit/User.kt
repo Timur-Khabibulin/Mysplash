@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,8 @@ fun UserPreviewCard(
     Column(
         modifier
             .fillMaxWidth()
-            .clickable { onUserClick(user) },
+            .clickable { onUserClick(user) }
+            .testTag("userView"),
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top),
         horizontalAlignment = Alignment.Start,
     ) {
@@ -102,7 +104,9 @@ fun UserViewHorizontal(
     onUserClick: (User) -> Unit
 ) {
     Row(
-        modifier.clickable { onUserClick(photo.user) },
+        modifier
+            .clickable { onUserClick(photo.user) }
+            .testTag("userView"),
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -131,7 +135,9 @@ fun UserViewVertical(
     onUserClick: (User) -> Unit
 ) {
     Column(
-        modifier.clickable { onUserClick(photo.user) },
+        modifier
+            .clickable { onUserClick(photo.user) }
+            .testTag("userView"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

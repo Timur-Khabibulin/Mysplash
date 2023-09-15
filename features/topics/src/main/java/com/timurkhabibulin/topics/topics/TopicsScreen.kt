@@ -2,15 +2,18 @@ package com.timurkhabibulin.topics.topics
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
@@ -21,10 +24,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
+import com.timurkhabibulin.core.LoadState
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
@@ -46,51 +51,66 @@ internal fun TopicsScreen(
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
 
-    val topics by topicsScreenViewModel.topics.collectAsState()
+    val state by topicsScreenViewModel.state.collectAsState()
 
-    if (topics.isNullOrEmpty()) {
-        Text(
-            modifier = Modifier
-                .padding(20.dp),
-            text = topicsScreenViewModel.errorMessage.value,
-            style = MaterialTheme.typography.titleSmall
-        )
-    } else {
-        val pagerState = rememberPagerState(pageCount = { topics!!.size })
-
-        topicIdToOpen?.let { id ->
-            val scope = rememberCoroutineScope()
-            topicsScreenViewModel.getIndexOfTopic(id)?.let { index ->
-                scope.launch {
-                    pagerState.animateScrollToPage(index)
-                }
+    when (val screenState = state) {
+        is LoadState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(32.dp))
             }
         }
 
-        Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(
-                    15.dp,
-                    Alignment.CenterHorizontally
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.topics),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                )
-                ScrollableTab(tabs = topics!!, pagerState = pagerState)
-            }
-            TabsContent(
-                topics = topics!!,
-                pagerState = pagerState,
-                onNavigateToPhoto = { photo -> onNavigateToPhoto(photo) },
-                onNavigateToUser = { user -> onNavigateToUser(user) }
+        is LoadState.Completed.Failure -> {
+            Text(
+                modifier = Modifier
+                    .padding(20.dp),
+                text = screenState.error?.message ?: "",
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center
             )
+        }
+
+        is LoadState.Completed.Success -> {
+            val pagerState = rememberPagerState(pageCount = { screenState.value.size })
+
+            topicIdToOpen?.let { id ->
+                val scope = rememberCoroutineScope()
+                topicsScreenViewModel.getIndexOfTopic(id)?.let { index ->
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                }
+            }
+
+            Column(Modifier.fillMaxSize()) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        15.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.topics),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    )
+                    ScrollableTab(tabs = screenState.value, pagerState = pagerState)
+                }
+                TabsContent(
+                    topics = screenState.value,
+                    pagerState = pagerState,
+                    onNavigateToPhoto = { photo -> onNavigateToPhoto(photo) },
+                    onNavigateToUser = { user -> onNavigateToUser(user) }
+                )
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,9 @@ fun TopicCard(
     onTopicClick: (Topic) -> Unit,
 ) {
     Column(
-        Modifier.clickable { onTopicClick(topic) },
+        Modifier
+            .clickable { onTopicClick(topic) }
+            .testTag("topicPreview"),
         verticalArrangement = Arrangement.spacedBy(
             5.dp, Alignment.Top
         ),
@@ -64,7 +67,7 @@ fun TopicCard(
                     .data(topic.cover_photo.urls.small).diskCachePolicy(CachePolicy.ENABLED)
                     .placeholder(ColorDrawable(topic.cover_photo.color!!.toColorInt()))
                     .crossfade(250).build(),
-                contentDescription = "Image",
+                contentDescription = "topicImage",
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(size = 10.dp)),

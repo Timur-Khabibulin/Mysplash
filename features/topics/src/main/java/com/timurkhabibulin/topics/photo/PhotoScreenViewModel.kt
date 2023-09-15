@@ -7,18 +7,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
 import coil.request.ImageRequest
+import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.core.isLoading
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.photos.PhotosUseCase
-import com.timurkhabibulin.domain.result.Result
+import com.timurkhabibulin.domain.result.asFailure
+import com.timurkhabibulin.domain.result.asSuccess
+import com.timurkhabibulin.domain.result.isSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,16 +27,24 @@ class PhotoScreenViewModel @Inject constructor(
     private val photosUseCase: PhotosUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    private val photoID = MutableStateFlow("")
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val photo: Flow<Result<Photo>> = photoID
-        .filterNotNull()
-        .distinctUntilChanged()
-        .flatMapLatest { id -> photosUseCase.getPhoto(id) }
+    private val _state: MutableStateFlow<LoadState<Photo>> = MutableStateFlow(LoadState.Loading())
+    val state: StateFlow<LoadState<Photo>> = _state
 
     fun loadPhoto(id: String) {
-        photoID.value = id
+        viewModelScope.launch(Dispatchers.IO) {
+            if (_state.value.isLoading()) {
+                val result = photosUseCase.getPhoto(id)
+
+                _state.emit(
+                    if (result.isSuccess()) {
+                        LoadState.Completed.Success(result.asSuccess().value)
+                    } else {
+                        LoadState.Completed.Failure(result.asFailure().error)
+                    }
+                )
+            }
+        }
     }
 
     fun downloadPhoto(photo: Photo, onStartDownload: () -> Unit, onDownloadComplete: () -> Unit) {
@@ -51,6 +59,9 @@ class PhotoScreenViewModel @Inject constructor(
                     bitmap
                 )
             ) {
+                photo.links.download_location?.let {
+                    photosUseCase.downloadPhoto(it)
+                }
                 photosUseCase.trackDownload(photo.id)
                 launch(Dispatchers.Main) {
                     onDownloadComplete()

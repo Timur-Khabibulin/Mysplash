@@ -1,6 +1,7 @@
 package com.timurkhabibulin.data.user
 
 import com.timurkhabibulin.domain.user.UserRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,16 +11,18 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal class UserModule {
+internal interface UserModule {
 
-    @Provides
-    fun provideUserRepository(userApi: UserApi): UserRepository {
-        return UserRepositoryImpl(userApi)
-    }
+    @Binds
+    fun bindUserRepository(
+        userRepositoryImpl: UserRepositoryImpl
+    ): UserRepository
 
-    @Provides
-    @Singleton
-    fun provideUserApi(retrofit: Retrofit): UserApi {
-        return retrofit.create(UserApi::class.java)
+    companion object {
+        @Provides
+        @Singleton
+        fun provideUserApi(retrofit: Retrofit): UserApi {
+            return retrofit.create(UserApi::class.java)
+        }
     }
 }

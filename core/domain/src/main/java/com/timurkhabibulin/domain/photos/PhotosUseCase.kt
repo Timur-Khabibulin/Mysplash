@@ -10,7 +10,6 @@ import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
@@ -33,9 +32,7 @@ class PhotosUseCase @Inject constructor(
         ).flow.flowOn(dispatcher)
     }
 
-    fun getPhoto(id: String): Flow<Result<Photo>> = flow {
-        emit(photosRepository.getPhoto(id))
-    }
+    suspend fun getPhoto(id: String): Result<Photo> = photosRepository.getPhoto(id)
 
     suspend fun trackDownload(id: String) {
         photosRepository.trackDownload(id)

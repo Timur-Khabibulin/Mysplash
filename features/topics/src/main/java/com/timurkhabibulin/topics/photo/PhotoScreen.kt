@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -50,13 +52,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.timurkhabibulin.core.LoadState
 import com.timurkhabibulin.core.R.drawable
+import com.timurkhabibulin.core.asSuccessfulCompletion
+import com.timurkhabibulin.core.isSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
-import com.timurkhabibulin.domain.result.Result
-import com.timurkhabibulin.domain.result.asFailure
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
 import com.timurkhabibulin.photos.R
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.TopBar
@@ -71,77 +72,32 @@ internal fun PhotoScreen(
     photoScreenViewModel: PhotoScreenViewModel = hiltViewModel()
 ) {
     photoScreenViewModel.loadPhoto(photoID)
-    val result: Result<Photo> by photoScreenViewModel.photo.collectAsStateWithLifecycle(
-        Result.Failure.Error(
-            Throwable()
-        )
-    )
+
+    val state by photoScreenViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val startDownload = stringResource(id = R.string.download_start)
     val stopDownload = stringResource(id = R.string.download_stop)
 
-    if (result.isSuccess()) {
-        PhotoInfoScreen(
-            photo = result.asSuccess().value,
-            onBackPressed = onBackPressed,
-            onDownloadPhoto = { ph ->
-                photoScreenViewModel.downloadPhoto(
-                    ph,
-                    onStartDownload = {
-                        Toast.makeText(
-                            context, startDownload, Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    onDownloadComplete = {
-                        Toast.makeText(
-                            context, stopDownload, Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                )
-            },
-            onUserClick = { user -> onNavigateToUser(user) }
-        )
-    } else {
-        Text(
-            text = "${stringResource(R.string.error_loading)}. ${result.asFailure().error?.message}",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(20.dp),
-            textAlign = TextAlign.Center
-        )
-    }
-
-    /*    PhotoInfoScreen(
-            photo = photo,
-            onBackPressed = onBackPressed,
-            onDownloadPhoto = { ph ->
-                photoScreenViewModel.downloadPhoto(
-                    ph,
-                    onStartDownload = {
-                        Toast.makeText(context, "Download has begun", Toast.LENGTH_SHORT).show()
-                    },
-                    onDownloadComplete = {
-                        Toast.makeText(context, "Download is complete", Toast.LENGTH_SHORT).show()
-                    }
-                )
-            },
-            onUserClick = { user -> onNavigateToUser(user) }
-        )*/
-
-    /*    if (photoID.isNotEmpty()) {
-            ShowPhoto(
-                photoID = photoID,
-                onBackPressed = onBackPressed,
-                onNavigateToUser = onNavigateToUser
+    PhotoInfoScreen(
+        state = state,
+        onBackPressed = onBackPressed,
+        onDownloadPhoto = { ph ->
+            photoScreenViewModel.downloadPhoto(
+                ph,
+                onStartDownload = {
+                    Toast.makeText(
+                        context, startDownload, Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onDownloadComplete = {
+                    Toast.makeText(
+                        context, stopDownload, Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
-        } else {
-            Text(
-                text = "Error loading",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(20.dp),
-                textAlign = TextAlign.Center
-            )
-        }*/
+        },
+        onUserClick = { user -> onNavigateToUser(user) }
+    )
 }
 
 @Composable
@@ -150,14 +106,14 @@ internal fun PhotoScreen(
 )
 internal fun PhotoInfoScreenPreview() {
     MysplashTheme {
-        PhotoInfoScreen(Photo.Default, {}, {}, {})
+        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {})
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PhotoInfoScreen(
-    photo: Photo,
+    state: LoadState<Photo>,
     onBackPressed: () -> Unit,
     onDownloadPhoto: (Photo) -> Unit,
     onUserClick: (User) -> Unit
@@ -179,49 +135,92 @@ internal fun PhotoInfoScreen(
                 )
             },
             sheetContent = {
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(start = 25.dp, end = 20.dp, bottom = 25.dp),
-                    verticalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    UserViewHorizontal(
-                        modifier = Modifier.fillMaxWidth(),
-                        photo = photo
-                    ) { user ->
-                        onUserClick(
-                            user
-                        )
-                    }
-
-                    photo.description?.let {
-                        Text(
-                            text = it,
-                            Modifier.width(280.dp),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Start
-                        )
-                    }
-
-                    Exif(photo)
+                if (state.isSuccessfulCompletion()) {
+                    SheetContent(
+                        photo = state.asSuccessfulCompletion().value,
+                        onUserClick = onUserClick
+                    )
                 }
             }
         ) { innerPadding ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding), contentAlignment = Alignment.Center
-            ) {
-                Photo(photo)
+
+            when (state) {
+                is LoadState.Completed.Failure -> {
+                    Text(
+                        text = "${stringResource(R.string.error_loading)}. ${state.error?.message}",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(20.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                is LoadState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                    }
+                }
+
+                is LoadState.Completed.Success -> {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding), contentAlignment = Alignment.Center
+                    ) {
+                        Photo(state.asSuccessfulCompletion().value)
+                    }
+                }
             }
         }
-        FABs(
-            onLikePhoto = {},
-            onAddPhoto = {},
-            onDownloadPhoto = { onDownloadPhoto(photo) }
-        )
+        if (state.isSuccessfulCompletion()) {
+            FABs(
+                onLikePhoto = {},
+                onAddPhoto = {},
+                onDownloadPhoto = { onDownloadPhoto(state.asSuccessfulCompletion().value) }
+            )
+        }
+    }
+}
+
+@Composable
+fun SheetContent(
+    photo: Photo,
+    onUserClick: (User) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(start = 25.dp, end = 20.dp, bottom = 25.dp),
+        verticalArrangement = Arrangement.spacedBy(
+            25.dp,
+            Alignment.CenterVertically
+        ),
+        horizontalAlignment = Alignment.Start,
+    ) {
+        UserViewHorizontal(
+            modifier = Modifier.fillMaxWidth(),
+            photo = photo
+        ) { user ->
+            onUserClick(
+                user
+            )
+        }
+
+        photo.description?.let {
+            Text(
+                text = it,
+                Modifier.width(280.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start
+            )
+        }
+
+        Exif(photo)
     }
 }
 

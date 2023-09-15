@@ -3,21 +3,23 @@ package com.timurkhabibulin.user.user
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,12 +28,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.timurkhabibulin.core.LoadState
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
@@ -49,7 +54,7 @@ internal fun UserScreen(
     userScreenViewModel: UserScreenViewModel = hiltViewModel()
 ) {
     userScreenViewModel.loadUser(username)
-    val user by userScreenViewModel.user.collectAsState()
+    val state by userScreenViewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         Modifier.fillMaxSize(),
@@ -60,34 +65,48 @@ internal fun UserScreen(
             )
         }
     ) { paddingValues ->
-        if (user != null) {
-            CollapsibleLayout(
-                Modifier.padding(paddingValues),
-                collapsingHeader = {
-                    UserInfo(
-                        user = user!!,
-                        modifier = it
-                    )
-                },
-                content = {
-                    Tabs(
-                        onPhotoClick = onPhotoClick,
-                        onCollectionClick = onCollectionClick
-                    )
+        when (val screenState = state) {
+            is LoadState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(32.dp))
                 }
-            )
-        } else {
-            Text(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(20.dp),
-                text = userScreenViewModel.errorMessage.value,
-                style = MaterialTheme.typography.titleSmall
-            )
+            }
+
+            is LoadState.Completed.Failure -> {
+                Text(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(20.dp),
+                    text = screenState.error?.message ?: "",
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            is LoadState.Completed.Success -> {
+                CollapsibleLayout(
+                    Modifier.padding(paddingValues),
+                    collapsingHeader = {
+                        UserInfo(
+                            user = screenState.value,
+                            modifier = it
+                        )
+                    },
+                    content = {
+                        Tabs(
+                            onPhotoClick = onPhotoClick,
+                            onCollectionClick = onCollectionClick
+                        )
+                    }
+                )
+            }
         }
-
     }
-
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
@@ -170,7 +189,7 @@ internal fun UserBasicInfo(user: User) {
                 horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Param(stringResource(R.string.follow), user.followers_count.toString())
+                Param(stringResource(R.string.followers), user.followers_count.toString())
                 Param(stringResource(R.string.following), user.following_count.toString())
             }
         }

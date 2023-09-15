@@ -1,11 +1,13 @@
 package com.timurkhabibulin.user.user
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.core.asSuccessfulCompletion
+import com.timurkhabibulin.core.isLoading
+import com.timurkhabibulin.core.isSuccessfulCompletion
 import com.timurkhabibulin.domain.collections.CollectionsUseCase
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
@@ -20,7 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,41 +33,40 @@ internal class UserScreenViewModel @Inject constructor(
     private val collectionsUseCase: CollectionsUseCase
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
+    private val _state = MutableStateFlow<LoadState<User>>(LoadState.Loading())
+    val state: StateFlow<LoadState<User>> = _state
 
-    private val _errorMessage = mutableStateOf("")
-    val errorMessage: State<String> = _errorMessage
-
-    val userPhotos: Flow<PagingData<Photo>> = user.makeRequest {
+    val userPhotos: Flow<PagingData<Photo>> = state.makeRequest {
         userUseCase.getUserPhotos(it.username)
     }
 
-    val userLikedPhotos: Flow<PagingData<Photo>> = user.makeRequest {
+    val userLikedPhotos: Flow<PagingData<Photo>> = state.makeRequest {
         userUseCase.getUserLikedPhotos(it.username)
     }
 
-    val userCollections: Flow<PagingData<Collection>> = user.makeRequest {
+    val userCollections: Flow<PagingData<Collection>> = state.makeRequest {
         collectionsUseCase.getUserCollections(it.username)
     }
 
     fun loadUser(username: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = userUseCase.getUser(username)
 
-            launch(Dispatchers.Main) {
-                if (result.isSuccess())
-                    _user.value = result.asSuccess().value
-                else _errorMessage.value = result.asFailure().error?.message ?: ""
+            if (_state.value.isLoading()) {
+                val result = userUseCase.getUser(username)
+
+                _state.emit(
+                    if (result.isSuccess())
+                        LoadState.Completed.Success(result.asSuccess().value)
+                    else LoadState.Completed.Failure(result.asFailure().error)
+                )
             }
-
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun <T : Any> StateFlow<User?>.makeRequest(request: (User) -> Flow<PagingData<T>>): Flow<PagingData<T>> {
-        return this.filterNotNull()
-            .flatMapLatest { request(it) }
+    private fun <T : Any> StateFlow<LoadState<User>>.makeRequest(request: (User) -> Flow<PagingData<T>>): Flow<PagingData<T>> {
+        return this.filter { it.isSuccessfulCompletion() }
+            .flatMapLatest { request(it.asSuccessfulCompletion().value) }
             .cachedIn(viewModelScope)
     }
 }

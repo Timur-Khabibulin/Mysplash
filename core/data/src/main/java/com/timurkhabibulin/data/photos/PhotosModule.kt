@@ -1,6 +1,7 @@
 package com.timurkhabibulin.data.photos
 
 import com.timurkhabibulin.domain.photos.PhotosRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,15 +11,18 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal class PhotosModule {
-    @Provides
-    fun providePhotosRepo(photosApi: PhotosApi): PhotosRepository {
-        return PhotosRepositoryImpl(photosApi)
-    }
+internal interface PhotosModule {
 
-    @Singleton
-    @Provides
-    fun providePhotosApi(retrofit: Retrofit): PhotosApi {
-        return retrofit.create(PhotosApi::class.java)
+    @Binds
+    fun bindPhotosRepository(
+        photosRepositoryImpl: PhotosRepositoryImpl
+    ): PhotosRepository
+
+    companion object {
+        @Singleton
+        @Provides
+        fun providePhotosApi(retrofit: Retrofit): PhotosApi {
+            return retrofit.create(PhotosApi::class.java)
+        }
     }
 }
