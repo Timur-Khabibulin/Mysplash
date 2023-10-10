@@ -42,22 +42,22 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0-rc01")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0-alpha01")
+    implementation("com.google.android.material:material:1.11.0-alpha03")
     implementation(project(mapOf("path" to ":core:ui")))
     implementation(project(mapOf("path" to ":core:common")))
     implementation(project(mapOf("path" to ":core:domain")))
-    implementation("androidx.navigation:navigation-runtime-ktx:2.7.0")
-    implementation("androidx.compose.ui:ui:1.6.0-alpha02")
+    implementation("androidx.navigation:navigation-runtime-ktx:2.7.4")
+    implementation("androidx.compose.ui:ui:1.6.0-alpha07")
 
-    implementation("com.google.dagger:hilt-android:2.47")
-    implementation("androidx.compose.material3:material3:1.1.1")
-    implementation("androidx.compose.ui:ui-tooling:1.6.0-alpha02")
-    kapt("com.google.dagger:hilt-android-compiler:2.47")
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("androidx.compose.ui:ui-tooling:1.6.0-alpha07")
+    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
-    implementation("androidx.paging:paging-compose:3.2.0")
+    implementation("androidx.paging:paging-compose:3.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
