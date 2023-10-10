@@ -1,6 +1,9 @@
 package com.timurkhabibulin.core.di
 
 
+import com.timurkhabibulin.core.ImageDownloader
+import com.timurkhabibulin.core.ImageDownloaderImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,15 +17,20 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class CoreModule {
-    @Singleton
-    @Provides
-    fun providesCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + coroutineDispatcher)
+interface CoreModule {
+    companion object {
+        @Singleton
+        @Provides
+        fun providesCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope {
+            return CoroutineScope(SupervisorJob() + coroutineDispatcher)
+        }
+
+        @Singleton
+        @Provides
+        fun provideDispatcherIO(): CoroutineDispatcher = Dispatchers.IO
     }
 
-    @Singleton
-    @Provides
-    fun provideDispatcherIO(): CoroutineDispatcher = Dispatchers.IO
 
+    @Binds
+    fun bindImageDownloader(imageDownloaderImpl: ImageDownloaderImpl): ImageDownloader
 }

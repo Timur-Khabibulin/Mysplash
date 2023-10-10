@@ -1,12 +1,7 @@
 package com.timurkhabibulin.topics.photo
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.ImageLoader
-import coil.request.ImageRequest
 import com.timurkhabibulin.core.LoadState
 import com.timurkhabibulin.core.isLoading
 import com.timurkhabibulin.domain.entities.Photo
@@ -15,7 +10,6 @@ import com.timurkhabibulin.domain.result.asFailure
 import com.timurkhabibulin.domain.result.asSuccess
 import com.timurkhabibulin.domain.result.isSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PhotoScreenViewModel @Inject constructor(
-    private val photosUseCase: PhotosUseCase,
-    @ApplicationContext private val context: Context
+    private val photosUseCase: PhotosUseCase
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<LoadState<Photo>> = MutableStateFlow(LoadState.Loading())
@@ -52,11 +45,12 @@ class PhotoScreenViewModel @Inject constructor(
             launch(Dispatchers.Main) {
                 onStartDownload()
             }
-            val bitmap = getDownloadedBitmap(photo)
 
             if (photosUseCase.savePhoto(
                     "${photo.user.username}-${photo.id}.jpeg",
-                    bitmap
+                    photo.urls.raw,
+                    photo.width,
+                    photo.height
                 )
             ) {
                 photo.links.download_location?.let {
@@ -68,18 +62,6 @@ class PhotoScreenViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private suspend fun getDownloadedBitmap(photo: Photo): Bitmap {
-
-        val request = ImageRequest
-            .Builder(context)
-            .data(photo.urls.raw)
-            .size(photo.width, photo.height)
-            .build()
-
-        val result = ImageLoader(context).execute(request)
-        return (result.drawable as BitmapDrawable).bitmap
     }
 
 }

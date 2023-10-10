@@ -1,10 +1,9 @@
 package com.timurkhabibulin.domain.photos
 
-import android.graphics.Bitmap
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.timurkhabibulin.core.StorageService
+import com.timurkhabibulin.core.ImageDownloader
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.result.Result
@@ -18,7 +17,7 @@ private const val NETWORK_PAGE_SIZE = 10
 class PhotosUseCase @Inject constructor(
     private val photosRepository: PhotosRepository,
     private val dispatcher: CoroutineDispatcher,
-    private val storageService: StorageService
+    private val imageDownloader: ImageDownloader
 ) {
 
     fun getPhotos(): Flow<PagingData<Photo>> {
@@ -42,7 +41,8 @@ class PhotosUseCase @Inject constructor(
         return photosRepository.downloadPhoto(url)
     }
 
-    fun savePhoto(fileName: String, bitmap: Bitmap): Boolean {
-        return storageService.saveBitmap(fileName, bitmap)
+     fun savePhoto(fileName: String, url: String?, width: Int, height: Int): Boolean {
+        imageDownloader.download(fileName, url, width, height)
+        return true //TODO
     }
 }
