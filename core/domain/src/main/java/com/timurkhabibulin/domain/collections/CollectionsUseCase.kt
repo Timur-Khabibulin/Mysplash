@@ -6,8 +6,7 @@ import androidx.paging.PagingData
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -20,10 +19,8 @@ class CollectionsUseCase @Inject constructor(
     private val dispatcher: CoroutineDispatcher
 ) {
 
-    suspend fun getCollection(id: String): Collection? {
-        val result = collectionsRepository.getCollection(id)
-        return if (result.isSuccess()) result.asSuccess().value
-        else null
+    suspend fun getCollection(id: String): Result<Collection> {
+        return collectionsRepository.getCollection(id)
     }
 
     fun getUserCollections(username: String): Flow<PagingData<Collection>> {

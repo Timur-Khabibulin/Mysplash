@@ -1,7 +1,7 @@
 package com.timurkhabibulin.core.di
 
 
-import com.timurkhabibulin.core.ImageDownloader
+import com.timurkhabibulin.domain.ImageDownloader
 import com.timurkhabibulin.core.ImageDownloaderImpl
 import dagger.Binds
 import dagger.Module

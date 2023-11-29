@@ -96,7 +96,10 @@ internal fun PhotoScreen(
                 }
             )
         },
-        onUserClick = { user -> onNavigateToUser(user) }
+        onUserClick = { user -> onNavigateToUser(user) },
+        onOpenInBrowser = {
+            photoScreenViewModel.openDeepLink(context)
+        }
     )
 }
 
@@ -106,7 +109,7 @@ internal fun PhotoScreen(
 )
 internal fun PhotoInfoScreenPreview() {
     MysplashTheme {
-        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {})
+        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {}, {})
     }
 }
 
@@ -116,7 +119,8 @@ internal fun PhotoInfoScreen(
     state: LoadState<Photo>,
     onBackPressed: () -> Unit,
     onDownloadPhoto: (Photo) -> Unit,
-    onUserClick: (User) -> Unit
+    onUserClick: (User) -> Unit,
+    onOpenInBrowser: (String) -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -131,7 +135,13 @@ internal fun PhotoInfoScreen(
             topBar = {
                 TopBar(
                     onBackPressed = onBackPressed,
-                    onOpenInBrowser = {}
+                    onOpenInBrowser = {
+                        if (state.isSuccessfulCompletion()) {
+                            state.asSuccessfulCompletion().value.links.html?.let {
+                                onOpenInBrowser(it)
+                            }
+                        }
+                    }
                 )
             },
             sheetContent = {
@@ -205,11 +215,7 @@ fun SheetContent(
         UserViewHorizontal(
             modifier = Modifier.fillMaxWidth(),
             photo = photo
-        ) { user ->
-            onUserClick(
-                user
-            )
-        }
+        ) { user -> onUserClick(user) }
 
         photo.description?.let {
             Text(

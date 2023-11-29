@@ -1,15 +1,16 @@
 package com.timurkhabibulin.data.photos
 
 
-import com.timurkhabibulin.data.attribution.AttributionRepository
+import com.timurkhabibulin.data.NetworkModule
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.photos.PhotosRepository
 import com.timurkhabibulin.domain.result.Result
+import com.timurkhabibulin.domain.result.asSuccess
+import com.timurkhabibulin.domain.result.isSuccess
 import javax.inject.Inject
 
 internal class PhotosRepositoryImpl @Inject constructor(
-    private val photosApi: PhotosApi,
-    private val attributionRepository: AttributionRepository
+    private val photosApi: PhotosApi
 ) : PhotosRepository {
     override suspend fun getPhotos(page: Int): Result<List<Photo>> {
         return photosApi.getPhotos(page)
@@ -18,11 +19,11 @@ internal class PhotosRepositoryImpl @Inject constructor(
     override suspend fun getPhoto(id: String): Result<Photo> {
         val result = photosApi.getPhoto(id)
 
-/*        if (result.isSuccess()) {
-            result.asSuccess().value.links.html?.let {
-                attributionRepository.attribute(it)
+        if (result.isSuccess()) {
+            result.asSuccess().value.apply {
+                links.html = "${links.html}${NetworkModule.UTM}"
             }
-        }*/
+        }
 
         return result
     }

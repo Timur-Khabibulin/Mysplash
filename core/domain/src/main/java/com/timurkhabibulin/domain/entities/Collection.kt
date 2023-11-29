@@ -17,8 +17,8 @@ data class Collection(
     val share_key: String,
     val cover_photo: Photo?,
     val user: User?,
-    val links: Links
-) : Parcelable {
+    override val links: Links
+) : Parcelable,Linkable {
     companion object {
         val Default = Collection(
             "206",

@@ -18,9 +18,9 @@ data class User(
     val following_count: Int,
     val profile_image: Urls,
     val badge: Badge?,
-    val links: Links,
+    override val links: Links,
     val photos: List<Photo>?
-) : Parcelable {
+) : Parcelable, Linkable {
     companion object {
         val DefaultUser = User(
             "QPxL2MGqfrw",

@@ -55,13 +55,16 @@ internal fun UserScreen(
 ) {
     userScreenViewModel.loadUser(username)
     val state by userScreenViewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
             TopBar(
                 onBackPressed = onBackPressed,
-                onOpenInBrowser = {}
+                onOpenInBrowser = {
+                    userScreenViewModel.openDeepLink(context)
+                }
             )
         }
     ) { paddingValues ->

@@ -8,9 +8,9 @@ data class Topic(
     val id: String,
     val title: String,
     val description: String,
-    val links: Links,
+    override val links: Links,
     val cover_photo: Photo
-) : Parcelable {
+) : Parcelable,Linkable {
     companion object {
         val Default = Topic(
             "123123",

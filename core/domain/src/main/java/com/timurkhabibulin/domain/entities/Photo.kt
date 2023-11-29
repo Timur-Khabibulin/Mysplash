@@ -16,9 +16,9 @@ data class Photo(
     val description: String?,
     val exif: Exif?,
     val urls: Urls,
-    val links: Links,
+    override val links: Links,
     val user: User
-) : Parcelable {
+) : Parcelable, Linkable {
     companion object {
         val Default = Photo(
             "Dwu85P9SOIk",

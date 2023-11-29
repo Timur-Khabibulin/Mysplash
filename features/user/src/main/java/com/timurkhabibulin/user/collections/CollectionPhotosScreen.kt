@@ -13,8 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.timurkhabibulin.core.asSuccessfulCompletion
+import com.timurkhabibulin.core.isSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
@@ -32,16 +35,19 @@ internal fun CollectionPhotosScreen(
 ) {
     collectionPhotosScreenViewModel.loadCollection(collectionId)
 
-    val collection by collectionPhotosScreenViewModel.collection.collectAsState()
+    val state by collectionPhotosScreenViewModel.state.collectAsState()
     val photos = collectionPhotosScreenViewModel.collectionPhotos
+    val context = LocalContext.current
 
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
             TopBar(
-                title = collection?.title ?: "",
+                title = if (state.isSuccessfulCompletion())
+                    state.asSuccessfulCompletion().value.title
+                else "",
                 onBackPressed = onBackPressed,
-                onOpenInBrowser = {}
+                onOpenInBrowser = { collectionPhotosScreenViewModel.openDeepLink(context) }
             )
         }
     ) {
@@ -53,8 +59,8 @@ internal fun CollectionPhotosScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            collection?.let { collection ->
-                CollectionInfo(collection)
+            if (state.isSuccessfulCompletion()) {
+                CollectionInfo(state.asSuccessfulCompletion().value)
             }
             PagingPullRefreshVerticalStaggeredGrid(
                 items = photos,

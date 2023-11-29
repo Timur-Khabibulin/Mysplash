@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Links(
     val self: String? = null,
-    val html: String? = null,
+    var html: String? = null,
     val photos: String? = null,
     val likes: String? = null,
     val portfolio: String? = null,

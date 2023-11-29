@@ -3,7 +3,7 @@ package com.timurkhabibulin.domain.photos
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.timurkhabibulin.core.ImageDownloader
+import com.timurkhabibulin.domain.ImageDownloader
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.result.Result

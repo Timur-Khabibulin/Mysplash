@@ -16,6 +16,10 @@ private const val UNSPLASH_API_BASE_URL = "https://api.unsplash.com/"
 @Module
 @InstallIn(SingletonComponent::class)
 internal class NetworkModule {
+    companion object {
+        const val UTM = "?utm_source=promise&utm_medium=referral&utm_campaign=plugin"
+    }
+
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
