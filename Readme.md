@@ -5,6 +5,8 @@ allowing you to search for inspiration from over 3 million
 carefully selected photos in high quality and
 download them for free.
 
+<a href="https://play.google.com/store/apps/details?id=education.openschools.parents"><img src="rustore_icon.png" width="188" height="63" ></a>
+
 ## Getting started
 
 * Create a developer account at: https://unsplash.com/developers
