@@ -5,17 +5,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.timurkhabibulin.core.LoadState
-import com.timurkhabibulin.core.asSuccessfulCompletion
 import com.timurkhabibulin.core.isLoading
-import com.timurkhabibulin.core.isSuccessfulCompletion
+import com.timurkhabibulin.core.onSuccess
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
-import com.timurkhabibulin.domain.result.asFailure
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.domain.result.onFailure
+import com.timurkhabibulin.domain.result.onSuccess
 import com.timurkhabibulin.domain.topics.TopicsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,34 +31,24 @@ internal class TopicsScreenViewModel @Inject constructor(
     val photosByTopic: Map<String, Flow<PagingData<Photo>>> = _photosByTopic
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (_state.value.isLoading()) {
-                val result = topicsUseCase.getTopics()
-
-                if (result.isSuccess()) {
-                    _state.emit(
-                        LoadState.Completed.Success(
-                            result.asSuccess().value
-                        )
-                    )
-                    result.asSuccess().value.bindPhotosToTopics()
-                } else {
-                    _state.emit(
-                        LoadState.Completed.Failure(result.asFailure().error)
-                    )
-                }
+                topicsUseCase.getTopics()
+                    .onSuccess {
+                        _state.emit(LoadState.Completed.Success(it))
+                        it.bindPhotosToTopics()
+                    }.onFailure {
+                        _state.emit(LoadState.Completed.Failure(it))
+                    }
             }
         }
     }
 
     fun getIndexOfTopic(topicId: String): Int? {
-        if (_state.value.isSuccessfulCompletion()) {
-            _state.value
-                .asSuccessfulCompletion()
-                .value
-                .forEachIndexed { index, topic ->
-                    if (topic.id == topicId) return index
-                }
+        _state.value.onSuccess {
+            it.forEachIndexed { index, topic ->
+                if (topic.id == topicId) return index
+            }
         }
         return null
     }

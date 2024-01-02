@@ -9,11 +9,9 @@ import androidx.paging.cachedIn
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.photos.PhotosUseCase
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
+import com.timurkhabibulin.domain.result.onSuccess
 import com.timurkhabibulin.domain.topics.TopicsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,14 +31,10 @@ internal class HomeScreenViewModel @Inject constructor(
         loadTopics()
     }
 
-   private fun loadTopics() {
-        viewModelScope.launch(Dispatchers.IO) {
-            topicsUseCase.getTopics().let {
-                if (it.isSuccess()) {
-                    launch(Dispatchers.Main) {
-                        _topics.value = it.asSuccess().value
-                    }
-                }
+    private fun loadTopics() {
+        viewModelScope.launch {
+            topicsUseCase.getTopics().onSuccess {
+                _topics.value = it
             }
         }
     }
