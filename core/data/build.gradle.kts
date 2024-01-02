@@ -13,17 +13,11 @@ val localProperties = Properties()
 localProperties.load(FileInputStream(rootProject.file("local.properties")))
 
 android {
-    val sdkVersion: Int by rootProject.extra
-    val minSdkVersion: Int by rootProject.extra
-    val jvmTargetVersion: String by rootProject.extra
-    val sourceCompatibilityVersion:JavaVersion by rootProject.extra
-    val targetCompatibilityVersion:JavaVersion by  rootProject.extra
-
     namespace = "com.timurkhabibulin.data"
-    compileSdk = sdkVersion
+    compileSdk = 34
 
     defaultConfig {
-        minSdk = minSdkVersion
+        minSdk = 26
 
         buildConfigField(
             "String",
@@ -48,11 +42,14 @@ android {
         buildConfig = true
     }
     compileOptions {
-        sourceCompatibility = sourceCompatibilityVersion
-        targetCompatibility = targetCompatibilityVersion
+        sourceCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = jvmTargetVersion
+        jvmTarget = "17"
+    }
+    kotlin{
+        jvmToolchain(17)
     }
 }
 
@@ -63,11 +60,11 @@ dependencies {
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.12")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

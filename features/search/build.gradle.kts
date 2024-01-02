@@ -14,6 +14,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -27,10 +28,13 @@ android {
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    kotlin{
+        jvmToolchain(17)
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.4"
@@ -44,18 +48,18 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0-alpha03")
+    implementation("com.google.android.material:material:1.11.0")
     implementation(project(mapOf("path" to ":core:ui")))
     implementation(project(mapOf("path" to ":core:common")))
     implementation(project(mapOf("path" to ":core:domain")))
-    implementation("androidx.navigation:navigation-runtime-ktx:2.7.4")
-    implementation("androidx.compose.ui:ui:1.6.0-alpha07")
+    implementation("androidx.navigation:navigation-runtime-ktx:2.7.6")
+    implementation("androidx.compose.ui:ui:1.6.0-beta03")
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.50")
     implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.compose.ui:ui-tooling:1.6.0-alpha07")
-    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.compose.ui:ui-tooling:1.6.0-beta03")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     implementation("androidx.paging:paging-compose:3.2.1")
 
