@@ -10,6 +10,7 @@ import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val NETWORK_PAGE_SIZE = 10
@@ -19,8 +20,8 @@ class CollectionsUseCase @Inject constructor(
     private val dispatcher: CoroutineDispatcher
 ) {
 
-    suspend fun getCollection(id: String): Result<Collection> {
-        return collectionsRepository.getCollection(id)
+    suspend fun getCollection(id: String): Result<Collection> = withContext(dispatcher) {
+         collectionsRepository.getCollection(id)
     }
 
     fun getUserCollections(username: String): Flow<PagingData<Collection>> {
@@ -30,7 +31,7 @@ class CollectionsUseCase @Inject constructor(
                 pageSize = NETWORK_PAGE_SIZE
             ),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                 ItemsPagingSource(dispatcher = dispatcher) { page ->
                     collectionsRepository.getUserCollections(username, page)
                 }
             }
@@ -44,7 +45,7 @@ class CollectionsUseCase @Inject constructor(
                 pageSize = NETWORK_PAGE_SIZE
             ),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                 ItemsPagingSource(dispatcher = dispatcher) { page ->
                     collectionsRepository.getCollectionPhotos(id, page)
                 }
             }

@@ -10,6 +10,7 @@ import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val NETWORK_PAGE_SIZE = 10
@@ -24,25 +25,28 @@ class PhotosUseCase @Inject constructor(
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                 ItemsPagingSource(dispatcher = dispatcher) { page ->
                     photosRepository.getPhotos(page)
                 }
             }
         ).flow.flowOn(dispatcher)
     }
 
-    suspend fun getPhoto(id: String): Result<Photo> = photosRepository.getPhoto(id)
+    suspend fun getPhoto(id: String): Result<Photo> = withContext(dispatcher) {
+        photosRepository.getPhoto(id)
+    }
 
-    suspend fun trackDownload(id: String) {
+    suspend fun trackDownload(id: String) = withContext(dispatcher) {
         photosRepository.trackDownload(id)
     }
 
-    suspend fun downloadPhoto(url: String): Result<Photo> {
-        return photosRepository.downloadPhoto(url)
+    suspend fun downloadPhoto(url: String): Result<Photo> = withContext(dispatcher) {
+        photosRepository.downloadPhoto(url)
     }
 
-     fun savePhoto(fileName: String, url: String?, width: Int, height: Int): Boolean {
-        imageDownloader.download(fileName, url, width, height)
-        return true //TODO
-    }
+    suspend fun savePhoto(fileName: String, url: String?, width: Int, height: Int): Boolean =
+        withContext(dispatcher) {
+            imageDownloader.download(fileName, url, width, height)
+            true //TODO
+        }
 }

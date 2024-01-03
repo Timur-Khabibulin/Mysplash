@@ -7,10 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.timurkhabibulin.domain.entities.Linkable
 import com.timurkhabibulin.domain.result.Result
-import com.timurkhabibulin.domain.result.asFailure
-import com.timurkhabibulin.domain.result.asSuccess
-import com.timurkhabibulin.domain.result.isSuccess
-import kotlinx.coroutines.Dispatchers
+import com.timurkhabibulin.domain.result.onFailure
+import com.timurkhabibulin.domain.result.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,30 +18,25 @@ abstract class BaseViewModel<T : Linkable> : ViewModel() {
     val state: StateFlow<LoadState<T>> = _state
 
     fun openDeepLink(context: Context) {
-        with(state.value) {
-            if (this.isSuccessfulCompletion()) {
-                this.asSuccessfulCompletion().value.links.html?.let {
-                    val deepLinkIntent = Intent(
-                        Intent.ACTION_VIEW,
-                        it.toUri()
-                    )
-                    context.startActivity(deepLinkIntent)
-                }
+        state.value.onSuccess {
+            it.links.html?.let { link ->
+                val deepLinkIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    link.toUri()
+                )
+                context.startActivity(deepLinkIntent)
             }
         }
     }
 
     protected fun loadData(getData: suspend () -> Result<T>) {
-        viewModelScope.launch(Dispatchers.IO) {
-
+        viewModelScope.launch {
             if (_state.value.isLoading()) {
-                val result = getData()
-
-                _state.emit(
-                    if (result.isSuccess())
-                        LoadState.Completed.Success(result.asSuccess().value)
-                    else LoadState.Completed.Failure(result.asFailure().error)
-                )
+                getData().onSuccess {
+                    _state.value = LoadState.Completed.Success(it)
+                }.onFailure {
+                    _state.value = LoadState.Completed.Failure(it)
+                }
             }
         }
     }

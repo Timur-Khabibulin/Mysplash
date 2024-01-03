@@ -10,6 +10,7 @@ import com.timurkhabibulin.domain.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val NETWORK_PAGE_SIZE = 10
@@ -18,15 +19,15 @@ class UserUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-    suspend fun getUser(username: String): Result<User> {
-        return userRepository.getUser(username)
+    suspend fun getUser(username: String): Result<User> = withContext(dispatcher) {
+        userRepository.getUser(username)
     }
 
     fun getUserPhotos(username: String): Flow<PagingData<Photo>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                ItemsPagingSource(dispatcher = dispatcher) { page ->
                     userRepository.getUserPhotos(username, page)
                 }
             }
@@ -37,7 +38,7 @@ class UserUseCase @Inject constructor(
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                ItemsPagingSource(dispatcher = dispatcher) { page ->
                     userRepository.getUserLikedPhotos(username, page)
                 }
             }

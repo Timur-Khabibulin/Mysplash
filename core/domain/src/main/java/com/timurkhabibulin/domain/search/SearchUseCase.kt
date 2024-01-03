@@ -34,7 +34,7 @@ class SearchUseCase @Inject constructor(
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                ItemsPagingSource(dispatcher = dispatcher) { page ->
                     searchRepository.searchPhotos(query, page, color, orientation)
                         .withoutSearchResult()
                 }
@@ -48,7 +48,7 @@ class SearchUseCase @Inject constructor(
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                 ItemsPagingSource(dispatcher = dispatcher) { page ->
                     searchRepository.searchCollections(query, page).withoutSearchResult()
                 }
             }
@@ -61,7 +61,7 @@ class SearchUseCase @Inject constructor(
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                ItemsPagingSource { page ->
+                 ItemsPagingSource(dispatcher = dispatcher) { page ->
                     searchRepository.searchUsers(query, page).withoutSearchResult()
                 }
             }
