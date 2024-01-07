@@ -14,6 +14,7 @@ import com.timurkhabibulin.topics.topics.navigateToTopic
 import com.timurkhabibulin.topics.topics.topicScreen
 import com.timurkhabibulin.user.collections.collectionPhotosScreen
 import com.timurkhabibulin.user.collections.navigateToCollectionPhotos
+import com.timurkhabibulin.user.favorites.favoriteScreen
 import com.timurkhabibulin.user.user.navigateToUser
 import com.timurkhabibulin.user.user.userScreen
 
@@ -45,6 +46,11 @@ fun MainNavHost(
             onUserClick = { user -> navController.navigateToUser(user.username) },
             onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) },
             onCollectionClick = { id -> navController.navigateToCollectionPhotos(id) }
+        )
+
+        favoriteScreen(
+            isFullScreen = isFullScreen,
+            onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) }
         )
 
         photoScreen(

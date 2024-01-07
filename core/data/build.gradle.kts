@@ -7,6 +7,7 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+//    id("com.google.devtools.ksp")
 }
 
 val localProperties = Properties()
@@ -54,9 +55,16 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:domain"))
+    val roomVersion = "2.6.1"
 
+    implementation(project(":core:domain"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+//    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+//    implementation("androidx.room:room-paging:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
