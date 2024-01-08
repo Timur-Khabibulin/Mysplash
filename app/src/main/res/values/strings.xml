@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_app">About app</string>
+    <string name="app_icon">app icon</string>
+    <string name="github">GitHub</string>
+    <string name="source_code">Source code</string>
+    <string name="developer">Developer</string>
+    <string name="timur_khabibulin">Timur Khabibulin</string>
+</resources>
