@@ -55,6 +55,9 @@ android {
             isDebuggable = true
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         sourceCompatibility = JavaVersion.VERSION_17
@@ -62,7 +65,7 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    kotlin{
+    kotlin {
         jvmToolchain(17)
     }
     buildFeatures {
@@ -100,6 +103,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics:21.5.0")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("androidx.hilt:hilt-work:1.1.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

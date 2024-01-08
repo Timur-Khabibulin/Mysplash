@@ -24,11 +24,15 @@ object FavoriteApi : FeatureApi {
 
 fun NavGraphBuilder.favoriteScreen(
     isFullScreen: (Boolean) -> Unit,
-    onPhotoClick: (Photo) -> Unit
+    onPhotoClick: (Photo) -> Unit,
+    onMenuClick: () -> Unit
 ) {
     composable(FAVORITE_ROUTE) {
         isFullScreen(false)
-        FavoritesScreen(onPhotoClick = onPhotoClick)
+        FavoritesScreen(
+            onPhotoClick = onPhotoClick,
+            onMenuClick = onMenuClick
+        )
     }
 }
 

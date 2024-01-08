@@ -7,6 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.timurkhabibulin.home.HomeApi
 import com.timurkhabibulin.home.homeScreen
+import com.timurkhabibulin.mysplash.ui.about.aboutAppScreen
+import com.timurkhabibulin.mysplash.ui.about.navigateToAboutApp
 import com.timurkhabibulin.search.searchScreen
 import com.timurkhabibulin.topics.photo.navigateToPhoto
 import com.timurkhabibulin.topics.photo.photoScreen
@@ -50,7 +52,8 @@ fun MainNavHost(
 
         favoriteScreen(
             isFullScreen = isFullScreen,
-            onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) }
+            onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) },
+            onMenuClick = { navController.navigateToAboutApp() }
         )
 
         photoScreen(
@@ -71,6 +74,11 @@ fun MainNavHost(
             onBackClick = navController::navigateUp,
             onPhotoClick = { photo -> navController.navigateToPhoto(photo.id) },
             onUserClick = { user -> navController.navigateToUser(user.username) }
+        )
+
+        aboutAppScreen(
+            isFullScreen = isFullScreen,
+            onBackClick = navController::navigateUp
         )
     }
 }

@@ -1,9 +1,13 @@
 package com.timurkhabibulin.user.favorites
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,11 +33,13 @@ import kotlinx.coroutines.flow.flow
 @Composable
 internal fun FavoritesScreen(
     onPhotoClick: (Photo) -> Unit,
+    onMenuClick: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     FavoritesScreen(
         onPhotoClick = onPhotoClick,
-        items = viewModel.state
+        items = viewModel.state,
+        onMenuClick = onMenuClick
     )
 }
 
@@ -45,7 +51,8 @@ fun FavoritesScreenPreview() {
             onPhotoClick = {},
             items = flow {
                 PagingData.from(listOf(Photo.Default, Photo.Default, Photo.Default))
-            }
+            },
+            onMenuClick = {}
         )
     }
 }
@@ -54,7 +61,8 @@ fun FavoritesScreenPreview() {
 @Composable
 private fun FavoritesScreen(
     onPhotoClick: (Photo) -> Unit,
-    items: Flow<PagingData<Photo>>
+    items: Flow<PagingData<Photo>>,
+    onMenuClick: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -70,7 +78,14 @@ private fun FavoritesScreen(
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    Icon(
+                        modifier = Modifier.clickable { onMenuClick() },
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null
+                    )
+                }
             )
         }
     ) { paddingValues ->
