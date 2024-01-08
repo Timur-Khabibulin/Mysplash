@@ -20,7 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -99,7 +100,9 @@ internal fun PhotoScreen(
         onUserClick = { user -> onNavigateToUser(user) },
         onOpenInBrowser = {
             photoScreenViewModel.openDeepLink(context)
-        }
+        },
+        onLikePhoto = { photoScreenViewModel.onLikeClick(it) },
+        likeState = photoScreenViewModel.isFavorite
     )
 }
 
@@ -109,7 +112,10 @@ internal fun PhotoScreen(
 )
 internal fun PhotoInfoScreenPreview() {
     MysplashTheme {
-        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {}, {})
+        val state = remember {
+            mutableStateOf(false)
+        }
+        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {}, {}, {}, state)
     }
 }
 
@@ -120,7 +126,9 @@ internal fun PhotoInfoScreen(
     onBackPressed: () -> Unit,
     onDownloadPhoto: (Photo) -> Unit,
     onUserClick: (User) -> Unit,
-    onOpenInBrowser: (String) -> Unit
+    onOpenInBrowser: (String) -> Unit,
+    onLikePhoto: (String) -> Unit,
+    likeState: State<Boolean>
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -188,8 +196,8 @@ internal fun PhotoInfoScreen(
         }
         if (state.isSuccessfulCompletion()) {
             FABs(
-                onLikePhoto = {},
-                onAddPhoto = {},
+                likeState = likeState,
+                onLikePhoto = { onLikePhoto(state.asSuccessfulCompletion().value.id) },
                 onDownloadPhoto = { onDownloadPhoto(state.asSuccessfulCompletion().value) }
             )
         }
@@ -307,8 +315,8 @@ internal fun Exif(photo: Photo) {
 
 @Composable
 internal fun FABs(
+    likeState: State<Boolean>,
     onLikePhoto: () -> Unit,
-    onAddPhoto: () -> Unit,
     onDownloadPhoto: () -> Unit
 ) {
     Column(
@@ -322,20 +330,11 @@ internal fun FABs(
             contentColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
-                imageVector = Icons.Outlined.FavoriteBorder,
+                imageVector = when (likeState.value) {
+                    true -> Icons.Outlined.Favorite
+                    false -> Icons.Outlined.FavoriteBorder
+                },
                 contentDescription = "like icon"
-            )
-        }
-
-        FloatingActionButton(
-            shape = CircleShape,
-            onClick = { onAddPhoto() },
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "add icon"
             )
         }
 
