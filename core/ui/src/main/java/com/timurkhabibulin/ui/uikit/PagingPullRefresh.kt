@@ -34,7 +34,8 @@ fun <T : Any> PagingPullRefreshVerticalStaggeredGrid(
     columns: StaggeredGridCells,
     verticalItemSpacing: Dp = 0.dp,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
-    state: LazyStaggeredGridState = rememberLazyStaggeredGridState()
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    onEmpty: (@Composable () -> Unit)? = null
 ) {
     PagingPullRefresh(
         modifier,
@@ -54,7 +55,8 @@ fun <T : Any> PagingPullRefreshVerticalStaggeredGrid(
                 },
                 state = state
             )
-        }
+        },
+        onEmpty = onEmpty
     )
 }
 
@@ -64,7 +66,8 @@ fun <T : Any> PagingPullRefreshVerticalColumn(
     items: Flow<PagingData<T>>,
     itemCard: @Composable (T) -> Unit,
     space: Dp,
-    header: (@Composable () -> Unit)? = null
+    header: (@Composable () -> Unit)? = null,
+    onEmpty: (@Composable () -> Unit)? = null
 ) {
     PagingPullRefresh(
         modifier,
@@ -86,7 +89,8 @@ fun <T : Any> PagingPullRefreshVerticalColumn(
                     itemCard(item)
                 }
             }
-        }
+        },
+        onEmpty = onEmpty
     )
 }
 
@@ -96,7 +100,8 @@ fun <T : Any> PagingPullRefresh(
     modifier: Modifier = Modifier,
     items: Flow<PagingData<T>>,
     content: @Composable (LazyPagingItems<T>) -> Unit,
-    onRefresh: (() -> Unit)? = null
+    onRefresh: (() -> Unit)? = null,
+    onEmpty: (@Composable () -> Unit)? = null
 ) {
     val pagingItems = items.collectAsLazyPagingItems()
 
@@ -117,6 +122,11 @@ fun <T : Any> PagingPullRefresh(
         if (pagingItems.loadState.refresh is LoadState.Error) {
             val error = (pagingItems.loadState.refresh as LoadState.Error).error
             OnLoadingError(error.message ?: "")
+        } else if (onEmpty != null &&
+            pagingItems.loadState.prepend.endOfPaginationReached &&
+            pagingItems.itemCount == 0
+        ) {
+            onEmpty()
         } else content(pagingItems)
 
         PullRefreshIndicator(

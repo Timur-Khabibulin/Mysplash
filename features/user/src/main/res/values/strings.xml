@@ -7,4 +7,5 @@
     <string name="followers">Followers</string>
     <string name="following">Following</string>
     <string name="favorite">Favorite</string>
+    <string name="no_favorite_photos">You don\'t have any favorite photos yet</string>
 </resources>

@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.timurkhabibulin.core.asSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.CollectionCard
@@ -76,7 +77,7 @@ internal fun Tabs(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun CustomTabRowPreview() {
-   MysplashTheme {
+    MysplashTheme {
         CustomTabRow(
             selectedIndex = 0,
             tabs = listOf(
@@ -133,6 +134,7 @@ internal fun UserTabsContent(
     val userPhotos = remember { userScreenViewModel.userPhotos }
     val userLikedPhotos = remember { userScreenViewModel.userLikedPhotos }
     val userCollections = remember { userScreenViewModel.userCollections }
+    val user = userScreenViewModel.state.value.asSuccessfulCompletion().value
 
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
@@ -142,43 +144,78 @@ internal fun UserTabsContent(
     ) { page ->
 
         when (page) {
-
-            0 -> PagingPullRefreshVerticalStaggeredGrid(
-                items = userPhotos,
-                itemCard = { photo ->
-                    PhotoView(
-                        photo = photo,
-                        onPhotoClick = { onPhotoClick(photo) }
+            0 -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Text(
+                        text = "${user.total_photos} ${stringResource(id = R.string.photos)}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
                     )
-                },
-                columns = StaggeredGridCells.Adaptive(160.dp),
-                verticalItemSpacing = 15.dp,
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-            )
-
-            1 -> PagingPullRefreshVerticalStaggeredGrid(
-                items = userLikedPhotos,
-                itemCard = { photo ->
-                    PhotoView(
-                        photo = photo,
-                        onPhotoClick = { onPhotoClick(photo) }
+                    PagingPullRefreshVerticalStaggeredGrid(
+                        items = userPhotos,
+                        itemCard = { photo ->
+                            PhotoView(
+                                photo = photo,
+                                onPhotoClick = { onPhotoClick(photo) }
+                            )
+                        },
+                        columns = StaggeredGridCells.Adaptive(160.dp),
+                        verticalItemSpacing = 15.dp,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
                     )
-                },
-                columns = StaggeredGridCells.Adaptive(160.dp),
-                verticalItemSpacing = 15.dp,
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-            )
+                }
+            }
 
-            2 -> PagingPullRefreshVerticalColumn(
-                items = userCollections,
-                itemCard = { collection ->
-                    CollectionCard(
-                        collection = collection,
-                        onClick = { onCollectionClick(it.id) }
+            1 -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Text(
+                        text = "${user.total_likes} ${stringResource(id = R.string.likes)}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
                     )
-                },
-                space = 20.dp
-            )
+                    PagingPullRefreshVerticalStaggeredGrid(
+                        items = userLikedPhotos,
+                        itemCard = { photo ->
+                            PhotoView(
+                                photo = photo,
+                                onPhotoClick = { onPhotoClick(photo) }
+                            )
+                        },
+                        columns = StaggeredGridCells.Adaptive(160.dp),
+                        verticalItemSpacing = 15.dp,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                    )
+                }
+            }
+
+            2 -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Text(
+                        text = "${user.total_collection} ${stringResource(id = R.string.collections)}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    PagingPullRefreshVerticalColumn(
+                        items = userCollections,
+                        itemCard = { collection ->
+                            CollectionCard(
+                                collection = collection,
+                                onClick = { onCollectionClick(it.id) }
+                            )
+                        },
+                        space = 20.dp
+                    )
+                }
+            }
         }
 
     }

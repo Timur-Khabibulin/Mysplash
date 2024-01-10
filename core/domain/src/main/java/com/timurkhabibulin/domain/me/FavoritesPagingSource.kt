@@ -35,7 +35,7 @@ internal class FavoritesPagingSource(
             )
 
             if (favorites.isEmpty() && page == 0)
-                LoadResult.Error<Int, Photo>(Throwable("There are no favorite photos"))//TODO:error string
+                LoadResult.Error<Int, Photo>(Throwable())
 
             val photos = favorites.map {
                 photosRepository.getPhoto(it)
