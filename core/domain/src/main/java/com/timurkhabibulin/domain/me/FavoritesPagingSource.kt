@@ -9,13 +9,17 @@ import com.timurkhabibulin.domain.result.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-private const val START_PAGE_INDEX = 0
-
 internal class FavoritesPagingSource(
     private val favoritesRepository: FavoritesRepository,
     private val photosRepository: PhotosRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : PagingSource<Int, Photo>() {
+
+    companion object {
+        const val START_PAGE_INDEX = 0
+        const val PAGE_SIZE = 10
+    }
+
     override fun getRefreshKey(state: PagingState<Int, Photo>): Int? {
         val anchorPosition = state.anchorPosition ?: return null
         val page = state.closestPageToPosition(anchorPosition) ?: return null
@@ -26,8 +30,8 @@ internal class FavoritesPagingSource(
         withContext(dispatcher) {
             val page = params.key ?: START_PAGE_INDEX
             val favorites = favoritesRepository.getFavoritePhotos(
-                params.loadSize,
-                page * params.loadSize
+                PAGE_SIZE,
+                page * PAGE_SIZE
             )
 
             if (favorites.isEmpty() && page == 0)

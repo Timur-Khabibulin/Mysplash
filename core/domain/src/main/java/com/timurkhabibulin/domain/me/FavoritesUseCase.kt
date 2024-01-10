@@ -11,8 +11,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-private const val PAGE_SIZE = 10
-
 class FavoritesUseCase @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
     private val photosRepository: PhotosRepository,
@@ -20,7 +18,7 @@ class FavoritesUseCase @Inject constructor(
 ) {
     fun getFavoritesPhotos(): Flow<PagingData<Photo>> {
         return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = PAGE_SIZE),
+            config = PagingConfig(enablePlaceholders = false, pageSize = FavoritesPagingSource.PAGE_SIZE),
             pagingSourceFactory = {
                 FavoritesPagingSource(favoritesRepository, photosRepository, dispatcher)
             }
