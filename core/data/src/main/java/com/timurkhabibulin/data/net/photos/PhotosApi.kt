@@ -5,7 +5,6 @@ import com.timurkhabibulin.domain.result.Result
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import retrofit2.http.Url
 
 internal interface PhotosApi {
 
