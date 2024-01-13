@@ -1,8 +1,8 @@
 package com.timurkhabibulin.core.di
 
 
-import com.timurkhabibulin.domain.ImageDownloader
-import com.timurkhabibulin.core.ImageDownloaderImpl
+import com.timurkhabibulin.domain.ImageUtils
+import com.timurkhabibulin.core.ImageUtilsImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -21,8 +21,8 @@ interface CoreModule {
     companion object {
         @Singleton
         @Provides
-        fun providesCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope {
-            return CoroutineScope(SupervisorJob() + coroutineDispatcher)
+        fun providesCoroutineScope(): CoroutineScope {
+            return CoroutineScope(SupervisorJob() + Dispatchers.Default)
         }
 
         @Singleton
@@ -32,5 +32,5 @@ interface CoreModule {
 
 
     @Binds
-    fun bindImageDownloader(imageDownloaderImpl: ImageDownloaderImpl): ImageDownloader
+    fun bindImageDownloader(imageDownloaderImpl: ImageUtilsImpl): ImageUtils
 }

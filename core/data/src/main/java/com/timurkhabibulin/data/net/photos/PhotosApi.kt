@@ -17,7 +17,4 @@ internal interface PhotosApi {
 
     @GET("photos/{id}/download")
     suspend fun trackDownload(@Path("id") id: String)
-
-    @GET
-    suspend fun downloadPhoto(@Url url: String): Result<Photo>
 }

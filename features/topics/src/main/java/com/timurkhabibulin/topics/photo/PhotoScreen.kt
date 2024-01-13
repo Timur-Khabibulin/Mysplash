@@ -102,7 +102,8 @@ internal fun PhotoScreen(
             photoScreenViewModel.openDeepLink(context)
         },
         onLikePhoto = { photoScreenViewModel.onLikeClick(it) },
-        likeState = photoScreenViewModel.isFavorite
+        likeState = photoScreenViewModel.isFavorite,
+        onSetAsWallpaper = { photoScreenViewModel.setAsWallpaper() }
     )
 }
 
@@ -115,7 +116,7 @@ internal fun PhotoInfoScreenPreview() {
         val state = remember {
             mutableStateOf(false)
         }
-        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {}, {}, {}, state)
+        PhotoInfoScreen(LoadState.Completed.Success(Photo.Default), {}, {}, {}, {}, {}, state, {})
     }
 }
 
@@ -128,7 +129,8 @@ internal fun PhotoInfoScreen(
     onUserClick: (User) -> Unit,
     onOpenInBrowser: (String) -> Unit,
     onLikePhoto: (String) -> Unit,
-    likeState: State<Boolean>
+    likeState: State<Boolean>,
+    onSetAsWallpaper: () -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -198,7 +200,8 @@ internal fun PhotoInfoScreen(
             FABs(
                 likeState = likeState,
                 onLikePhoto = { onLikePhoto(state.asSuccessfulCompletion().value.id) },
-                onDownloadPhoto = { onDownloadPhoto(state.asSuccessfulCompletion().value) }
+                onDownloadPhoto = { onDownloadPhoto(state.asSuccessfulCompletion().value) },
+                onSetAsWallpaper = onSetAsWallpaper
             )
         }
     }
@@ -317,7 +320,8 @@ internal fun Exif(photo: Photo) {
 internal fun FABs(
     likeState: State<Boolean>,
     onLikePhoto: () -> Unit,
-    onDownloadPhoto: () -> Unit
+    onDownloadPhoto: () -> Unit,
+    onSetAsWallpaper: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(25.dp),
@@ -325,7 +329,19 @@ internal fun FABs(
     ) {
         FloatingActionButton(
             shape = CircleShape,
-            onClick = { onLikePhoto() },
+            onClick = onSetAsWallpaper,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.surface
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.wallpaper),
+                contentDescription = "like icon"
+            )
+        }
+
+        FloatingActionButton(
+            shape = CircleShape,
+            onClick = onLikePhoto,
             containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = MaterialTheme.colorScheme.primary
         ) {
@@ -340,9 +356,9 @@ internal fun FABs(
 
         FloatingActionButton(
             shape = CircleShape,
-            onClick = { onDownloadPhoto() },
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.surface
+            onClick = onDownloadPhoto,
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 painter = painterResource(drawable.download_02),

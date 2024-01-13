@@ -31,8 +31,4 @@ internal class PhotosRepositoryImpl @Inject constructor(
     override suspend fun trackDownload(id: String) {
         photosApi.trackDownload(id)
     }
-
-    override suspend fun downloadPhoto(url: String): Result<Photo> {
-        return photosApi.downloadPhoto(url)
-    }
 }

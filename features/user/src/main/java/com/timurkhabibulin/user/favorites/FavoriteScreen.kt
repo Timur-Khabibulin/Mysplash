@@ -94,7 +94,9 @@ private fun FavoritesScreen(
         }
     ) { paddingValues ->
         PagingPullRefreshVerticalStaggeredGrid(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(10.dp),
             items = items,
             itemCard = { photo ->
                 PhotoView(

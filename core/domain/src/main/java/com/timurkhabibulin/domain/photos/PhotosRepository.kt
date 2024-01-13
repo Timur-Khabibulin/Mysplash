@@ -9,6 +9,4 @@ interface PhotosRepository {
     suspend fun getPhoto(id: String): Result<Photo>
 
     suspend fun trackDownload(id: String)
-
-    suspend fun downloadPhoto(url:String):Result<Photo>
 }
