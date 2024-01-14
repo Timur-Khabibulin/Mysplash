@@ -3,7 +3,7 @@ package com.timurkhabibulin.domain.photos
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.timurkhabibulin.domain.ImageDownloader
+import com.timurkhabibulin.domain.ImageUtils
 import com.timurkhabibulin.domain.ItemsPagingSource
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.result.Result
@@ -18,14 +18,14 @@ private const val NETWORK_PAGE_SIZE = 10
 class PhotosUseCase @Inject constructor(
     private val photosRepository: PhotosRepository,
     private val dispatcher: CoroutineDispatcher,
-    private val imageDownloader: ImageDownloader
+    private val imageUtils: ImageUtils
 ) {
 
     fun getPhotos(): Flow<PagingData<Photo>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = NETWORK_PAGE_SIZE),
             pagingSourceFactory = {
-                 ItemsPagingSource(dispatcher = dispatcher) { page ->
+                ItemsPagingSource(dispatcher = dispatcher) { page ->
                     photosRepository.getPhotos(page)
                 }
             }
@@ -36,17 +36,15 @@ class PhotosUseCase @Inject constructor(
         photosRepository.getPhoto(id)
     }
 
-    suspend fun trackDownload(id: String) = withContext(dispatcher) {
-        photosRepository.trackDownload(id)
-    }
-
-    suspend fun downloadPhoto(url: String): Result<Photo> = withContext(dispatcher) {
-        photosRepository.downloadPhoto(url)
-    }
-
-    suspend fun savePhoto(fileName: String, url: String?, width: Int, height: Int): Boolean =
+    suspend fun savePhoto(photo: Photo): Boolean =
         withContext(dispatcher) {
-            imageDownloader.download(fileName, url, width, height)
+            imageUtils.download(photo, photo.urls.raw, photo.width, photo.height)
+            photosRepository.trackDownload(photo.id)
             true //TODO
         }
+
+    suspend fun cropAndSetAsWallpaper(photo: Photo) = withContext(dispatcher) {
+        imageUtils.cropAndSetAsWallpaper(photo, photo.urls.raw, photo.width, photo.height)
+        photosRepository.trackDownload(photo.id)
+    }
 }

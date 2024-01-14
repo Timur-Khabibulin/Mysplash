@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.timurkhabibulin.core.BaseViewModel
+import com.timurkhabibulin.core.asSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.me.FavoritesUseCase
 import com.timurkhabibulin.domain.photos.PhotosUseCase
@@ -31,19 +32,8 @@ class PhotoScreenViewModel @Inject constructor(
     fun downloadPhoto(photo: Photo, onStartDownload: () -> Unit, onDownloadComplete: () -> Unit) {
         viewModelScope.launch {
             onStartDownload()
-            if (photosUseCase.savePhoto(
-                    "${photo.user.username}-${photo.id}.jpeg",
-                    photo.urls.raw,
-                    photo.width,
-                    photo.height
-                )
-            ) {
-                photo.links.download_location?.let {
-                    photosUseCase.downloadPhoto(it)
-                }
-                photosUseCase.trackDownload(photo.id)
-                onDownloadComplete()
-            }
+            val result = photosUseCase.savePhoto(photo)
+            if (result) onDownloadComplete()
         }
     }
 
@@ -56,6 +46,13 @@ class PhotoScreenViewModel @Inject constructor(
                 favoritesUseCase.addToFavorite(id)
                 _isFavorite.value = true
             }
+        }
+    }
+
+    fun setAsWallpaper() {
+        viewModelScope.launch {
+            val photo = state.value.asSuccessfulCompletion().value
+            photosUseCase.cropAndSetAsWallpaper(photo)
         }
     }
 }
