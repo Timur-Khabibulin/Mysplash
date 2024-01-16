@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.timurkhabibulin.core.asSuccessfulCompletion
-import com.timurkhabibulin.core.isSuccessfulCompletion
+import com.timurkhabibulin.domain.asSuccessfulCompletion
+import com.timurkhabibulin.domain.isSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User

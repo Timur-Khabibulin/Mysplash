@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.timurkhabibulin.core.BaseViewModel
-import com.timurkhabibulin.core.asSuccessfulCompletion
+import com.timurkhabibulin.domain.asSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.me.FavoritesUseCase
 import com.timurkhabibulin.domain.photos.PhotosUseCase

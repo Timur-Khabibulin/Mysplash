@@ -5,7 +5,10 @@ import android.content.Intent
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.timurkhabibulin.domain.LoadState
 import com.timurkhabibulin.domain.entities.Linkable
+import com.timurkhabibulin.domain.isLoading
+import com.timurkhabibulin.domain.onSuccess
 import com.timurkhabibulin.domain.result.Result
 import com.timurkhabibulin.domain.result.onFailure
 import com.timurkhabibulin.domain.result.onSuccess

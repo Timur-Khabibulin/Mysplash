@@ -1,4 +1,4 @@
-package com.timurkhabibulin.core
+package com.timurkhabibulin.domain
 
 sealed class LoadState<T> {
 

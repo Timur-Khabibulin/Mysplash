@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.timurkhabibulin.core.BaseViewModel
-import com.timurkhabibulin.core.LoadState
-import com.timurkhabibulin.core.asSuccessfulCompletion
-import com.timurkhabibulin.core.isSuccessfulCompletion
+import com.timurkhabibulin.domain.LoadState
+import com.timurkhabibulin.domain.asSuccessfulCompletion
+import com.timurkhabibulin.domain.isSuccessfulCompletion
 import com.timurkhabibulin.domain.collections.CollectionsUseCase
 import com.timurkhabibulin.domain.entities.Collection
 import com.timurkhabibulin.domain.entities.Photo

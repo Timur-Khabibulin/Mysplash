@@ -53,13 +53,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.domain.LoadState
 import com.timurkhabibulin.core.R.drawable
 import com.timurkhabibulin.core.analytics.AnalyticsAction
 import com.timurkhabibulin.core.analytics.AnalyticsEvent
 import com.timurkhabibulin.core.analytics.ContentType
-import com.timurkhabibulin.core.asSuccessfulCompletion
-import com.timurkhabibulin.core.isSuccessfulCompletion
+import com.timurkhabibulin.domain.asSuccessfulCompletion
+import com.timurkhabibulin.domain.isSuccessfulCompletion
 import com.timurkhabibulin.core.utils.LocalAnalytics
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User

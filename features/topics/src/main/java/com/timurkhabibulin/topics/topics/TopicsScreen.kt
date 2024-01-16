@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
-import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.domain.LoadState
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.entities.User
