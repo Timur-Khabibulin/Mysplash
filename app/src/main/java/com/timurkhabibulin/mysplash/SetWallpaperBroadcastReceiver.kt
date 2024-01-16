@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
-import com.timurkhabibulin.core.WallpaperUtil
+import com.timurkhabibulin.core.utils.WallpaperUtil
 import com.timurkhabibulin.domain.ImageUtils
 
 class SetWallpaperBroadcastReceiver(

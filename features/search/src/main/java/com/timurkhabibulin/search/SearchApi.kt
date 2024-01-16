@@ -1,9 +1,11 @@
 package com.timurkhabibulin.search
 
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.timurkhabibulin.core.FeatureApi
+import com.timurkhabibulin.core.utils.TrackScreen
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 
@@ -36,6 +38,7 @@ fun NavGraphBuilder.searchScreen(
             onUserClick = onUserClick,
             onCollectionClick = onCollectionClick
         )
+        TrackScreen(name = stringResource(id = SearchApi.titleResId))
     }
 }
 

@@ -1,11 +1,13 @@
 package com.timurkhabibulin.user.user
 
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.timurkhabibulin.core.FeatureApi
+import com.timurkhabibulin.core.utils.TrackScreen
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.user.R
 
@@ -50,6 +52,7 @@ fun NavGraphBuilder.userScreen(
             onBackPressed = onBackClick,
             onCollectionClick = onCollectionClick
         )
+        TrackScreen(name = stringResource(id = UserApi.titleResId))
     }
 }
 

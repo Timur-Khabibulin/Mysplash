@@ -1,12 +1,14 @@
 package com.timurkhabibulin.topics.topics
 
 
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.timurkhabibulin.core.FeatureApi
+import com.timurkhabibulin.core.utils.TrackScreen
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.photos.R
@@ -49,6 +51,7 @@ fun NavGraphBuilder.topicScreen(
             onNavigateToPhoto = onPhotoClick,
             if (topicId == DEFAULT_TOPIC_ID) null else topicId
         )
+        TrackScreen(name = stringResource(id = TopicsApi.titleResId))
     }
 }
 

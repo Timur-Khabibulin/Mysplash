@@ -39,7 +39,7 @@ private fun createDirLegacy(fileName: String, context: Context): Uri {
     val image = File(imagesDir, fileName)
     return FileProvider.getUriForFile(
         context,
-        "com.timurkhabibulin.mysplash.fileprovider",
+        "${context.packageName}.fileprovider",
         image
     )
 }

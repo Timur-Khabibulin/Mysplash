@@ -1,4 +1,4 @@
-package com.timurkhabibulin.core
+package com.timurkhabibulin.core.utils
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.timurkhabibulin.core.utils.ImageDownloaderUtil
 import com.timurkhabibulin.domain.ImageUtils
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
