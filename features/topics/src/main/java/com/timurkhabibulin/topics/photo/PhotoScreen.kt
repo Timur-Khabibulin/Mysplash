@@ -55,15 +55,18 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.LoadState
 import com.timurkhabibulin.core.R.drawable
+import com.timurkhabibulin.core.analytics.AnalyticsAction
+import com.timurkhabibulin.core.analytics.AnalyticsEvent
+import com.timurkhabibulin.core.analytics.ContentType
 import com.timurkhabibulin.core.asSuccessfulCompletion
 import com.timurkhabibulin.core.isSuccessfulCompletion
+import com.timurkhabibulin.core.utils.LocalAnalytics
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.photos.R
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.TopBar
 import com.timurkhabibulin.ui.uikit.UserViewHorizontal
-
 
 @Composable
 internal fun PhotoScreen(
@@ -78,11 +81,13 @@ internal fun PhotoScreen(
     val context = LocalContext.current
     val startDownload = stringResource(id = R.string.download_start)
     val stopDownload = stringResource(id = R.string.download_stop)
+    val analytics = LocalAnalytics.current
 
     PhotoInfoScreen(
         state = state,
         onBackPressed = onBackPressed,
         onDownloadPhoto = { ph ->
+            analytics.logEvent(AnalyticsEvent(AnalyticsAction.DOWNLOAD, ContentType.BUTTON))
             photoScreenViewModel.downloadPhoto(
                 ph,
                 onStartDownload = {
@@ -99,11 +104,24 @@ internal fun PhotoScreen(
         },
         onUserClick = { user -> onNavigateToUser(user) },
         onOpenInBrowser = {
+            analytics.logEvent(
+                AnalyticsEvent(
+                    AnalyticsAction.OPEN_IN_BROWSER,
+                    ContentType.BUTTON,
+                    SCREEN_NAME
+                )
+            )
             photoScreenViewModel.openDeepLink(context)
         },
-        onLikePhoto = { photoScreenViewModel.onLikeClick(it) },
+        onLikePhoto = {
+            analytics.logEvent(AnalyticsEvent(AnalyticsAction.ADD_TO_FAVORITE, ContentType.BUTTON))
+            photoScreenViewModel.onLikeClick(it)
+        },
         likeState = photoScreenViewModel.isFavorite,
-        onSetAsWallpaper = { photoScreenViewModel.setAsWallpaper() }
+        onSetAsWallpaper = {
+            analytics.logEvent(AnalyticsEvent(AnalyticsAction.SET_WALLPAPER, ContentType.BUTTON))
+            photoScreenViewModel.setAsWallpaper()
+        }
     )
 }
 

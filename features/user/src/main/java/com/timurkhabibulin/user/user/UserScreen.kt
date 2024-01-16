@@ -37,6 +37,10 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.timurkhabibulin.core.LoadState
+import com.timurkhabibulin.core.analytics.AnalyticsAction
+import com.timurkhabibulin.core.analytics.AnalyticsEvent
+import com.timurkhabibulin.core.analytics.ContentType
+import com.timurkhabibulin.core.utils.LocalAnalytics
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.ui.theme.MysplashTheme
@@ -56,6 +60,8 @@ internal fun UserScreen(
     userScreenViewModel.loadUser(username)
     val state by userScreenViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val analytics = LocalAnalytics.current
+    val screenName = stringResource(UserApi.titleResId)
 
     Scaffold(
         Modifier.fillMaxSize(),
@@ -63,6 +69,13 @@ internal fun UserScreen(
             TopBar(
                 onBackPressed = onBackPressed,
                 onOpenInBrowser = {
+                    analytics.logEvent(
+                        AnalyticsEvent(
+                            AnalyticsAction.OPEN_IN_BROWSER,
+                            ContentType.BUTTON,
+                            screenName
+                        )
+                    )
                     userScreenViewModel.openDeepLink(context)
                 }
             )

@@ -2,7 +2,7 @@ package com.timurkhabibulin.core.di
 
 
 import com.timurkhabibulin.domain.ImageUtils
-import com.timurkhabibulin.core.ImageUtilsImpl
+import com.timurkhabibulin.core.utils.ImageUtilsImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -1,4 +1,4 @@
-package com.timurkhabibulin.core
+package com.timurkhabibulin.core.utils
 
 import android.content.Context
 import com.timurkhabibulin.domain.ImageUtils

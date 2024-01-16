@@ -5,11 +5,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.timurkhabibulin.core.utils.TrackScreen
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 
 internal const val collectionPhotosRoute = "collection_photos_route"
 internal const val collectionIdArg = "collectionId"
+private const val SCREEN_NAME = "aboutApp"
 
 fun NavGraphBuilder.collectionPhotosScreen(
     isFullScreen: (Boolean) -> Unit,
@@ -35,6 +37,7 @@ fun NavGraphBuilder.collectionPhotosScreen(
             onPhotoClick = onPhotoClick,
             onUserClick = onUserClick
         )
+        TrackScreen(SCREEN_NAME)
     }
 }
 

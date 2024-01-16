@@ -4,8 +4,11 @@ import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.timurkhabibulin.core.WallpaperUtil
+import androidx.compose.runtime.CompositionLocalProvider
+import com.timurkhabibulin.core.analytics.Analytics
+import com.timurkhabibulin.core.utils.WallpaperUtil
 import com.timurkhabibulin.domain.ImageUtils
+import com.timurkhabibulin.core.utils.LocalAnalytics
 import com.timurkhabibulin.mysplash.ui.MainScreen
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,6 +18,8 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var wallpaperUtil: WallpaperUtil
+    @Inject
+    lateinit var analytics: Analytics
     private lateinit var setWallpaperBroadcastReceiver: SetWallpaperBroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +33,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MysplashTheme {
-                MainScreen()
+                CompositionLocalProvider(LocalAnalytics provides analytics) {
+                    MainScreen()
+                }
             }
         }
     }

@@ -50,9 +50,13 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            manifestPlaceholders["analytics_deactivated"] = false
+            manifestPlaceholders["analytics_activated"] = true
         }
         debug {
             isDebuggable = true
+            manifestPlaceholders["analytics_deactivated"] = true
+            manifestPlaceholders["analytics_activated"] = false
         }
     }
     buildFeatures {

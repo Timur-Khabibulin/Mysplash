@@ -43,6 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.timurkhabibulin.core.analytics.AnalyticsAction
+import com.timurkhabibulin.core.analytics.AnalyticsEvent
+import com.timurkhabibulin.core.analytics.ContentType
+import com.timurkhabibulin.core.utils.LocalAnalytics
 import com.timurkhabibulin.domain.entities.Color
 import com.timurkhabibulin.domain.entities.Orientation
 import com.timurkhabibulin.domain.entities.Photo
@@ -77,6 +81,7 @@ internal fun SearchScreen(
     val bottomSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val searchQuery by searchScreenViewModel.searchQuery.collectAsState()
+    val analytics = LocalAnalytics.current
 
     Scaffold(
         Modifier
@@ -104,7 +109,15 @@ internal fun SearchScreen(
 
             SearchBar(
                 placeholder = searchQuery,
-                onStartSearch = searchScreenViewModel::changeSearchQuery
+                onStartSearch = {
+                    analytics.logEvent(
+                        AnalyticsEvent(
+                            AnalyticsAction.SEARCH,
+                            ContentType.IMAGE_BUTTON
+                        )
+                    )
+                    searchScreenViewModel.changeSearchQuery(it)
+                }
             )
             Tabs(currentCategory = category)
             SearchContent(
