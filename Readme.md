@@ -35,21 +35,20 @@ To build the app, you need to get a `google-services.json` file from Firebase:
 * MVVM
 * Coroutines
 * Retrofit
+* Room
 * Pagination
 * Hilt
 
 ## Screenshots
 
 <p align="left">
-<img src="Screenshots/Editorial.jpg" alt="drawing" width="250"/>
-<img src="Screenshots/Topics.jpg" alt="drawing" width="250"/>
-<img src="Screenshots/PhotoInfo1.jpg" alt="drawing" width="250"/>
+<img src="Screenshots/en/en_1.png" alt="drawing" width="250"/>
+<img src="Screenshots/en/en_2.png" alt="drawing" width="250"/>
+<img src="Screenshots/en/en_3.png" alt="drawing" width="250"/>
 </p>
 <p align="left">
- <img src="Screenshots/User.jpg" alt="drawing" width="250"/>
-<img src="Screenshots/Search.jpg" alt="drawing" width="250"/>
-<img src="Screenshots/Collections.jpg" alt="drawing" width="250"/>
-<img src="Screenshots/collectionView.jpg" alt="drawing" width="250"/>
+<img src="Screenshots/en/en_4.png" alt="drawing" width="250"/>
+<img src="Screenshots/en/en_5.png" alt="drawing" width="250"/>
 </p>
 
 
