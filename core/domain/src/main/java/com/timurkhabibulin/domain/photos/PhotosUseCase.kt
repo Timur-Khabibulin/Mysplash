@@ -36,12 +36,10 @@ class PhotosUseCase @Inject constructor(
         photosRepository.getPhoto(id)
     }
 
-    suspend fun savePhoto(photo: Photo): Boolean =
-        withContext(dispatcher) {
-            imageUtils.download(photo, photo.urls.raw, photo.width, photo.height)
-            photosRepository.trackDownload(photo.id)
-            true //TODO
-        }
+    suspend fun savePhoto(photo: Photo) = withContext(dispatcher) {
+        imageUtils.download(photo, photo.urls.raw, photo.width, photo.height)
+        photosRepository.trackDownload(photo.id)
+    }
 
     suspend fun cropAndSetAsWallpaper(photo: Photo) = withContext(dispatcher) {
         imageUtils.cropAndSetAsWallpaper(photo, photo.urls.raw, photo.width, photo.height)

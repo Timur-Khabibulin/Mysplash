@@ -51,6 +51,9 @@ internal class ImageWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
+            context.sendBroadcast(
+                Intent(ImageUtils.MYSPLASH_DOWNLOAD_START)
+            )
             val url = inputData.getString(URL)
             val fileName = inputData.getString(FILE_NAME)
             val width = inputData.getInt(WIDTH, 0)
@@ -65,6 +68,10 @@ internal class ImageWorker @AssistedInject constructor(
                 height
             )
 
+            context.sendBroadcast(
+                Intent(ImageUtils.MYSPLASH_DOWNLOAD_END)
+            )
+
             if (setAsWallpaper) {
                 context.sendBroadcast(
                     Intent(ImageUtils.MYSPLASH_SET_AS_WALLPAPER_ACTION).putExtra(
@@ -72,7 +79,6 @@ internal class ImageWorker @AssistedInject constructor(
                     )
                 )
             }
-
             Result.success()
         } catch (exception: Exception) {
             Result.failure()

@@ -18,6 +18,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var wallpaperUtil: WallpaperUtil
+
     @Inject
     lateinit var analytics: Analytics
     private lateinit var setWallpaperBroadcastReceiver: SetWallpaperBroadcastReceiver
@@ -27,7 +28,11 @@ class MainActivity : ComponentActivity() {
         setWallpaperBroadcastReceiver = SetWallpaperBroadcastReceiver(wallpaperUtil)
         registerReceiver(
             setWallpaperBroadcastReceiver,
-            IntentFilter(ImageUtils.MYSPLASH_SET_AS_WALLPAPER_ACTION),
+            IntentFilter().apply {
+                addAction(ImageUtils.MYSPLASH_SET_AS_WALLPAPER_ACTION)
+                addAction(ImageUtils.MYSPLASH_DOWNLOAD_START)
+                addAction(ImageUtils.MYSPLASH_DOWNLOAD_END)
+            },
             RECEIVER_NOT_EXPORTED
         )
 

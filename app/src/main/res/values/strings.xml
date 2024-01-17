@@ -6,4 +6,6 @@
     <string name="source_code">Source code</string>
     <string name="developer">Developer</string>
     <string name="timur_khabibulin">Timur Khabibulin</string>
+    <string name="download_start">Download has begun</string>
+    <string name="download_end">Download is complete</string>
 </resources>

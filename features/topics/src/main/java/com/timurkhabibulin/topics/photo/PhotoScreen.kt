@@ -2,7 +2,6 @@ package com.timurkhabibulin.topics.photo
 
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
-import android.widget.Toast
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,16 +52,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.timurkhabibulin.domain.LoadState
 import com.timurkhabibulin.core.R.drawable
 import com.timurkhabibulin.core.analytics.AnalyticsAction
 import com.timurkhabibulin.core.analytics.AnalyticsEvent
 import com.timurkhabibulin.core.analytics.ContentType
-import com.timurkhabibulin.domain.asSuccessfulCompletion
-import com.timurkhabibulin.domain.isSuccessfulCompletion
 import com.timurkhabibulin.core.utils.LocalAnalytics
+import com.timurkhabibulin.domain.LoadState
+import com.timurkhabibulin.domain.asSuccessfulCompletion
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
+import com.timurkhabibulin.domain.isSuccessfulCompletion
 import com.timurkhabibulin.photos.R
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.TopBar
@@ -79,8 +78,6 @@ internal fun PhotoScreen(
 
     val state by photoScreenViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val startDownload = stringResource(id = R.string.download_start)
-    val stopDownload = stringResource(id = R.string.download_stop)
     val analytics = LocalAnalytics.current
 
     PhotoInfoScreen(
@@ -88,19 +85,7 @@ internal fun PhotoScreen(
         onBackPressed = onBackPressed,
         onDownloadPhoto = { ph ->
             analytics.logEvent(AnalyticsEvent(AnalyticsAction.DOWNLOAD, ContentType.BUTTON))
-            photoScreenViewModel.downloadPhoto(
-                ph,
-                onStartDownload = {
-                    Toast.makeText(
-                        context, startDownload, Toast.LENGTH_SHORT
-                    ).show()
-                },
-                onDownloadComplete = {
-                    Toast.makeText(
-                        context, stopDownload, Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
+            photoScreenViewModel.downloadPhoto(ph)
         },
         onUserClick = { user -> onNavigateToUser(user) },
         onOpenInBrowser = {

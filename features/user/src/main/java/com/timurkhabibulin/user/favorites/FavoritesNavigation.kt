@@ -15,7 +15,7 @@ object FavoriteApi : FeatureApi {
     override val route: String
         get() = FAVORITE_ROUTE
     override val iconResId: Int
-        get() = R.drawable.bookmark_border
+        get() = R.drawable.favorite
     override val titleResId: Int
         get() = R.string.favorite
 

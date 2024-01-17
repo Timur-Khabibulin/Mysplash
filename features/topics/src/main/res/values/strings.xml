@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="topics">Topics</string>
-    <string name="download_start">Download has begun</string>
-    <string name="download_stop">Download is complete</string>
     <string name="error_loading">Error loading</string>
     <string name="camera">Camera</string>
     <string name="unknown">Unknown</string>

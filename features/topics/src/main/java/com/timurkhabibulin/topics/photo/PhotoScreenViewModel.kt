@@ -29,11 +29,9 @@ class PhotoScreenViewModel @Inject constructor(
         }
     }
 
-    fun downloadPhoto(photo: Photo, onStartDownload: () -> Unit, onDownloadComplete: () -> Unit) {
+    fun downloadPhoto(photo: Photo) {
         viewModelScope.launch {
-            onStartDownload()
-            val result = photosUseCase.savePhoto(photo)
-            if (result) onDownloadComplete()
+            photosUseCase.savePhoto(photo)
         }
     }
 
