@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -37,7 +37,7 @@ android {
         jvmToolchain(17)
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.4"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     buildFeatures {
         compose = true
@@ -45,25 +45,19 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:domain"))
+    implementation(project(":core:common"))
+    implementation(project(":core:ui"))
 
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation(project(mapOf("path" to ":core:ui")))
-    implementation(project(mapOf("path" to ":core:common")))
-    implementation(project(mapOf("path" to ":core:domain")))
-    implementation("androidx.navigation:navigation-runtime-ktx:2.7.6")
-    implementation("androidx.compose.ui:ui:1.6.0-beta03")
+    implementation(libs.core.ktx)
 
-    implementation("com.google.dagger:hilt-android:2.50")
-    implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.compose.ui:ui-tooling:1.6.0-beta03")
-    kapt("com.google.dagger:hilt-android-compiler:2.50")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.paging.compose)
 
-    implementation("androidx.paging:paging-compose:3.2.1")
-
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
 }

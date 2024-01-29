@@ -1,0 +1,63 @@
+[versions]
+coil-kt = "2.5.0"
+work = "2.9.0"
+appcompat = "1.6.1"
+hilt = "1.1.0"
+navigation = "2.7.6"
+material = "1.6.0-beta03"
+retrofit2 = "2.9.0"
+kotlinx = "1.7.3"
+firebase-analytics = "21.5.0"
+firebase-crashlytics = "18.6.1"
+lifecycle = "2.7.0"
+gson = "2.10.1"
+core = "1.12.0"
+activity = "1.8.2"
+room = "2.6.1"
+okhttp3 = "5.0.0-alpha.12"
+dagger = "2.50"
+material3 = "1.2.0-beta02"
+paging = "3.2.1"
+ui = "1.6.0-beta03"
+org-jetbrains-kotlin-jvm = "1.8.10"
+
+[libraries]
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-kt" }
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigation" }
+material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "material" }
+compose-material = { group = "androidx.compose.material", name = "material", version.ref = "material" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit2" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit2" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebase-analytics" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "ui" }
+compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "ui" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "ui" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "ui" }
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+[bundles]
+firebase = ["firebase-crashlytics", "firebase-analytics"]
+network = ["retrofit", "converter-gson", "logging-interceptor", "gson"]
+database = ["room-runtime", "room-ktx"]
+[plugins]
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
