@@ -14,9 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -50,6 +50,7 @@ internal fun HomeScreen(
     val exploreDefaultHeight = 139.dp
     val lazyStaggeredGridState = rememberLazyStaggeredGridState()
     val canCollapse = rememberSaveable { mutableStateOf(false) }
+    val topics by homeScreenViewModel.topics.collectAsState()
 
     LaunchedEffect(lazyStaggeredGridState) {
         snapshotFlow { lazyStaggeredGridState.firstVisibleItemIndex }.collect {
@@ -62,7 +63,7 @@ internal fun HomeScreen(
         collapsingHeader = {
             Explore(
                 it,
-                topics = homeScreenViewModel.topics,
+                topics = topics,
                 onTopicClick = onTopicClick,
             )
         },
@@ -84,13 +85,15 @@ internal fun HomeScreen(
 @Composable
 fun ExplorePreview() {
     MysplashTheme {
-        Explore(topics = remember { mutableStateOf(listOf(Topic.Default, Topic.Default)) }) {}
+        Explore(topics = listOf(Topic.Default, Topic.Default)) {}
     }
 }
 
 @Composable
 fun Explore(
-    modifier: Modifier = Modifier, topics: State<List<Topic>>, onTopicClick: (Topic) -> Unit
+    modifier: Modifier = Modifier,
+    topics: List<Topic>,
+    onTopicClick: (Topic) -> Unit
 ) {
     Row(
         modifier
@@ -113,8 +116,8 @@ fun Explore(
             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
             verticalAlignment = Alignment.Top,
         ) {
-            items(topics.value.size) { index ->
-                TopicCard(topics.value[index], onTopicClick)
+            items(topics.size) { index ->
+                TopicCard(topics[index], onTopicClick)
             }
         }
     }
