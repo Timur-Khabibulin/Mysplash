@@ -44,7 +44,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
-    implementation("androidx.paging:paging-compose:3.2.1")
+    implementation("androidx.paging:paging-compose:3.3.2")
     /*    implementation("androidx.appcompat:appcompat:1.6.1")
         implementation("com.google.android.material:material:1.9.0")
         testImplementation("junit:junit:4.13.2")
