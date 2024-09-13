@@ -3,7 +3,7 @@
 <img src="design/logo.png" width="200" />
 </div>
 
-<h4 align="center">Mysplash is unofficial [Unsplash](https://unsplash.com/) client for android,
+<h4 align="center">Mysplash is unofficial Unsplash client for android,
 allowing you to search for inspiration from over 3 million
 carefully selected photos in high quality and
 download them for free

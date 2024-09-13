@@ -5,9 +5,8 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-//    id("com.google.devtools.ksp")
 }
 
 val localProperties = Properties()
@@ -55,26 +54,15 @@ android {
 }
 
 dependencies {
-    val roomVersion = "2.6.1"
-
     implementation(project(":core:domain"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-//    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-//    implementation("androidx.room:room-paging:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.12")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.kotlinx.coroutines.android)
 
-    implementation("com.google.dagger:hilt-android:2.50")
-    kapt("com.google.dagger:hilt-android-compiler:2.50")
+    implementation(libs.bundles.database)
+    ksp(libs.room.compiler)
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.bundles.network)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }
