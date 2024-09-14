@@ -26,9 +26,14 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,18 +43,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.PagingData
 import com.timurkhabibulin.core.analytics.AnalyticsAction
 import com.timurkhabibulin.core.analytics.AnalyticsEvent
 import com.timurkhabibulin.core.analytics.ContentType
 import com.timurkhabibulin.core.utils.LocalAnalytics
-import com.timurkhabibulin.domain.entities.Collection
+import com.timurkhabibulin.domain.entities.Color
+import com.timurkhabibulin.domain.entities.Orientation
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
-import com.timurkhabibulin.search.filter.Filter
-import com.timurkhabibulin.search.filter.FilterButton
-import com.timurkhabibulin.search.filter.FilterHandler
-import com.timurkhabibulin.search.filter.FilterUIState
 import com.timurkhabibulin.ui.theme.MysplashTheme
 import com.timurkhabibulin.ui.uikit.CollectionCard
 import com.timurkhabibulin.ui.uikit.PagingPullRefreshVerticalColumn
@@ -58,7 +59,6 @@ import com.timurkhabibulin.ui.uikit.PhotoCard
 import com.timurkhabibulin.ui.uikit.Tab
 import com.timurkhabibulin.ui.uikit.TabIndicator
 import com.timurkhabibulin.ui.uikit.UserPreviewCard
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 
@@ -76,12 +76,12 @@ internal fun SearchScreen(
     onPhotoClick: (Photo) -> Unit,
     onUserClick: (User) -> Unit,
     onCollectionClick: (String) -> Unit,
-    viewModel: SearchScreenViewModel = hiltViewModel()
+    searchScreenViewModel: SearchScreenViewModel = hiltViewModel()
 ) {
     val bottomSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val searchQuery by searchScreenViewModel.searchQuery.collectAsState()
     val analytics = LocalAnalytics.current
-    val filtersState by viewModel.filters.collectAsState()
 
     Scaffold(
         Modifier
@@ -103,9 +103,12 @@ internal fun SearchScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            val category = rememberSaveable {
+                mutableStateOf(SearchCategory.PHOTOS)
+            }
+
             SearchBar(
-                query = filtersState.query,
-                onChangeQuery = viewModel::updateQuery,
+                placeholder = searchQuery,
                 onStartSearch = {
                     analytics.logEvent(
                         AnalyticsEvent(
@@ -113,28 +116,29 @@ internal fun SearchScreen(
                             ContentType.IMAGE_BUTTON
                         )
                     )
-                    viewModel.startSearch()
+                    searchScreenViewModel.changeSearchQuery(it)
                 }
             )
-            Tabs(
-                category = filtersState.category,
-                onChangeCategory = viewModel::updateCategory
-            )
+            Tabs(currentCategory = category)
             SearchContent(
-                filters = filtersState,
-                photos = viewModel.photos,
-                collections = viewModel.collections,
-                users = viewModel.users,
+                category = category,
+                searchQuery = searchQuery,
                 onPhotoClick = onPhotoClick,
                 onUserClick = onUserClick,
                 onCollectionClick = onCollectionClick,
+                searchScreenViewModel = searchScreenViewModel
             )
         }
 
         BottomSheetFilter(
             modalBottomSheetState = bottomSheetState,
-            filterHandler = viewModel.filterHandler,
-            onApplyClick = viewModel::updateFilterStateAndStartSearch
+            defaultColor = searchScreenViewModel.color.value,
+            defaultOrientation = searchScreenViewModel.orientation.value,
+            onApplyClick = { color, orientation ->
+                searchScreenViewModel.color.value = color
+                searchScreenViewModel.orientation.value = orientation
+                searchScreenViewModel.searchParametersChanged()
+            }
         )
     }
 }
@@ -142,14 +146,19 @@ internal fun SearchScreen(
 @Composable
 internal fun SearchBar(
     modifier: Modifier = Modifier,
-    query: String,
-    onChangeQuery: (String) -> Unit,
-    onStartSearch: () -> Unit
+    placeholder: String,
+    onStartSearch: (String) -> Unit
 ) {
+    var query by remember {
+        mutableStateOf(placeholder)
+    }
+
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = query,
-        onValueChange = onChangeQuery,
+        onValueChange = {
+            query = it
+        },
         placeholder = {
             Text(
                 modifier = Modifier.padding(start = 20.dp),
@@ -160,7 +169,7 @@ internal fun SearchBar(
         shape = RoundedCornerShape(50.dp),
         trailingIcon = {
             Icon(
-                modifier = Modifier.clickable { onStartSearch() },
+                modifier = Modifier.clickable { onStartSearch(query) },
                 painter = painterResource(id = R.drawable.search_sm),
                 contentDescription = ""
             )
@@ -172,7 +181,7 @@ internal fun SearchBar(
         ),
         maxLines = 1,
         keyboardActions = KeyboardActions(onSearch = {
-            onStartSearch()
+            onStartSearch(query)
         }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
     )
@@ -181,8 +190,7 @@ internal fun SearchBar(
 @Composable
 internal fun Tabs(
     modifier: Modifier = Modifier,
-    category: SearchCategory,
-    onChangeCategory: (SearchCategory) -> Unit
+    currentCategory: MutableState<SearchCategory>
 ) {
     Row(
         modifier.fillMaxWidth(),
@@ -195,16 +203,16 @@ internal fun Tabs(
         ScrollableTabRow(
             modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.background,
-            selectedTabIndex = category.ordinal,
-            indicator = { TabIndicator(tabPosition = it[category.ordinal]) },
+            selectedTabIndex = currentCategory.value.ordinal,
+            indicator = { TabIndicator(tabPosition = it[currentCategory.value.ordinal]) },
             divider = {},
             edgePadding = 0.dp
         ) {
             SearchCategory.values().forEach { searchCategory ->
                 Tab(
                     text = searchCategory.name,
-                    selected = category == searchCategory,
-                    onClick = { onChangeCategory(searchCategory) }
+                    selected = currentCategory.value == searchCategory,
+                    onClick = { currentCategory.value = searchCategory }
                 )
             }
         }
@@ -213,67 +221,65 @@ internal fun Tabs(
 
 @Composable
 internal fun SearchContent(
-    filters: SearchScreenFiltersState,
-    photos: Flow<PagingData<Photo>>,
-    collections: Flow<PagingData<Collection>>,
-    users: Flow<PagingData<User>>,
+    category: MutableState<SearchCategory>,
+    searchQuery: String,
     onPhotoClick: (Photo) -> Unit,
     onUserClick: (User) -> Unit,
     onCollectionClick: (String) -> Unit,
+    searchScreenViewModel: SearchScreenViewModel
 ) {
     Box(
         Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        when (filters.category) {
-            SearchCategory.PHOTOS ->
-                PagingPullRefreshVerticalStaggeredGrid(
-                    items = photos,
-                    itemCard = {
-                        PhotoCard(
-                            photo = it,
-                            onPhotoClick = onPhotoClick,
-                            onUserClick = onUserClick
-                        )
-                    },
-                    columns = StaggeredGridCells.Adaptive(300.dp),
-                    verticalItemSpacing = 20.dp,
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    onEmpty = {
-                        EmptyPlaceHolder()
-                    }
-                )
+        if (searchQuery.isNotEmpty()) {
+            when (category.value) {
+                SearchCategory.PHOTOS ->
+                    PagingPullRefreshVerticalStaggeredGrid(
+                        items = searchScreenViewModel.photos,
+                        itemCard = {
+                            PhotoCard(
+                                photo = it,
+                                onPhotoClick = onPhotoClick,
+                                onUserClick = onUserClick
+                            )
+                        },
+                        columns = StaggeredGridCells.Adaptive(300.dp),
+                        verticalItemSpacing = 20.dp,
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    )
 
-            SearchCategory.COLLECTIONS ->
-                PagingPullRefreshVerticalColumn(
-                    items = collections,
-                    itemCard = { collection ->
-                        CollectionCard(
-                            collection = collection,
-                            onClick = { onCollectionClick(it.id) }
-                        )
-                    },
-                    space = 20.dp,
-                    onEmpty = {
-                        EmptyPlaceHolder()
-                    }
-                )
+                SearchCategory.COLLECTIONS ->
+                    PagingPullRefreshVerticalColumn(
+                        items = searchScreenViewModel.collections,
+                        itemCard = { collection ->
+                            CollectionCard(
+                                collection = collection,
+                                onClick = { onCollectionClick(it.id) }
+                            )
+                        },
+                        space = 20.dp
+                    )
 
-            SearchCategory.USERS ->
-                PagingPullRefreshVerticalColumn(
-                    items = users,
-                    itemCard = {
-                        UserPreviewCard(
-                            user = it,
-                            onUserClick = onUserClick,
-                            onPhotoClick = onPhotoClick
-                        )
-                    },
-                    space = 20.dp,
-                    onEmpty = {
-                        EmptyPlaceHolder()
-                    }
-                )
+                SearchCategory.USERS ->
+                    PagingPullRefreshVerticalColumn(
+                        items = searchScreenViewModel.users,
+                        itemCard = {
+                            UserPreviewCard(
+                                user = it,
+                                onUserClick = onUserClick,
+                                onPhotoClick = onPhotoClick
+                            )
+                        },
+                        space = 20.dp
+                    )
+            }
+        } else {
+            Text(
+                text = stringResource(R.string.lets_find_something_incredible),
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -282,8 +288,9 @@ internal fun SearchContent(
 @Composable
 internal fun BottomSheetFilter(
     modalBottomSheetState: SheetState,
-    filterHandler: FilterHandler,
-    onApplyClick: (FilterUIState) -> Unit
+    defaultColor: Color?,
+    defaultOrientation: Orientation?,
+    onApplyClick: (Color?, Orientation?) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -293,34 +300,21 @@ internal fun BottomSheetFilter(
             sheetState = modalBottomSheetState,
         ) {
             Filter(
-                modifier = Modifier.padding(bottom = 40.dp),
-                filterHandler = filterHandler,
+                Modifier.padding(bottom = 40.dp),
+                defaultColor = defaultColor,
+                defaultOrientation = defaultOrientation,
                 onCancelClick = {
                     scope.launch {
                         modalBottomSheetState.hide()
                     }
                 },
-                onApplyClick = { state ->
+                onApplyClick = { color, orientation ->
                     scope.launch {
-                        onApplyClick(state)
+                        onApplyClick(color, orientation)
                         modalBottomSheetState.hide()
                     }
                 }
             )
         }
-    }
-}
-
-@Composable
-internal fun EmptyPlaceHolder(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(R.string.lets_find_something_incredible),
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
-        )
     }
 }

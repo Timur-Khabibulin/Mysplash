@@ -1,4 +1,4 @@
-package com.timurkhabibulin.search.filter
+package com.timurkhabibulin.search
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -16,30 +16,54 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.timurkhabibulin.domain.entities.Color
 import com.timurkhabibulin.domain.entities.Orientation
-import com.timurkhabibulin.search.R
+import com.timurkhabibulin.ui.theme.MysplashTheme
 
+@Preview
+@Composable
+internal fun FilterPreview() {
+    MysplashTheme {
+        Filter(
+            Modifier,
+            Color.BLACK,
+            null,
+            {},
+            { _, _ -> })
+    }
+}
+
+//TODO(): кнопка сброса
 @Composable
 internal fun Filter(
     modifier: Modifier = Modifier,
-    filterHandler: FilterHandler,
+    defaultColor: Color?,
+    defaultOrientation: Orientation?,
     onCancelClick: () -> Unit,
-    onApplyClick: (FilterUIState) -> Unit
+    onApplyClick: (Color?, Orientation?) -> Unit
 ) {
-    val uiState by filterHandler.uiState.collectAsState()
+
+    val color: MutableState<Color?> = remember {
+        mutableStateOf(defaultColor)
+    }
+    val orientation: MutableState<Orientation?> = remember {
+        mutableStateOf(defaultOrientation)
+    }
 
     Column(
         modifier
@@ -50,14 +74,8 @@ internal fun Filter(
     ) {
         Text(text = stringResource(R.string.filters), style = MaterialTheme.typography.titleLarge)
 
-        OrientationFilter(
-            currentOrientation = uiState.orientation,
-            onChangeOrientation = filterHandler::updateOrientation
-        )
-        ColorFilter(
-            currentColor = uiState.color,
-            onChangeColor = filterHandler::updateColor
-        )
+        OrientationFilter(currentOrientation = orientation)
+        ColorFilter(currentColor = color)
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -76,7 +94,7 @@ internal fun Filter(
                 modifier = Modifier
                     .width(214.dp)
                     .height(44.dp),
-                onClick = { onApplyClick(uiState) },
+                onClick = { onApplyClick(color.value, orientation.value) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary
                 )
@@ -90,10 +108,10 @@ internal fun Filter(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrientationFilter(
-    currentOrientation: Orientation?,
-    onChangeOrientation: (Orientation?) -> Unit
+    currentOrientation: MutableState<Orientation?>
 ) {
     Column(
         Modifier.fillMaxWidth(),
@@ -113,8 +131,8 @@ fun OrientationFilter(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FilterChip(
-                selected = currentOrientation == null,
-                onClick = { onChangeOrientation(null) },
+                selected = currentOrientation.value == null,
+                onClick = { currentOrientation.value = null },
                 label = {
                     Text(
                         text = stringResource(R.string.none),
@@ -126,8 +144,8 @@ fun OrientationFilter(
 
             Orientation.values().forEach {
                 FilterChip(
-                    selected = currentOrientation == it,
-                    onClick = { onChangeOrientation(it) },
+                    selected = currentOrientation.value == it,
+                    onClick = { currentOrientation.value = it },
                     label = {
                         Text(
                             text = it.orientationName,
@@ -141,10 +159,10 @@ fun OrientationFilter(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorFilter(
-    currentColor: Color?,
-    onChangeColor: (Color?) -> Unit
+    currentColor: MutableState<Color?>
 ) {
     Column(
         Modifier.fillMaxWidth(),
@@ -164,8 +182,8 @@ fun ColorFilter(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FilterChip(
-                selected = currentColor == null,
-                onClick = { onChangeColor(null) },
+                selected = currentColor.value == null,
+                onClick = { currentColor.value = null },
                 label = {
                     Text(
                         text = stringResource(R.string.none),
@@ -177,8 +195,8 @@ fun ColorFilter(
 
             Color.values().forEach {
                 FilterChip(
-                    selected = currentColor == it,
-                    onClick = { onChangeColor(it) },
+                    selected = currentColor.value == it,
+                    onClick = { currentColor.value = it },
                     label = {
                         Text(
                             text = it.colorName,

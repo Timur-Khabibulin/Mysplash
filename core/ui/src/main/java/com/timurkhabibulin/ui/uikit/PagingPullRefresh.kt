@@ -104,8 +104,10 @@ fun <T : Any> PagingPullRefresh(
     onEmpty: (@Composable () -> Unit)? = null
 ) {
     val pagingItems = items.collectAsLazyPagingItems()
+
+    val refreshing = pagingItems.loadState.refresh is LoadState.Loading
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = pagingItems.loadState.refresh is LoadState.Loading,
+        refreshing = refreshing,
         onRefresh = {
             pagingItems.refresh()
             onRefresh?.invoke()
@@ -117,27 +119,21 @@ fun <T : Any> PagingPullRefresh(
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
-        with(pagingItems.loadState) {
-            when {
-                refresh is LoadState.Error -> {
-                    OnLoadingError((refresh as LoadState.Error).error.message ?: "")
-                }
+        if (pagingItems.loadState.refresh is LoadState.Error) {
+            val error = (pagingItems.loadState.refresh as LoadState.Error).error
+            OnLoadingError(error.message ?: "")
+        } else if (onEmpty != null &&
+            pagingItems.loadState.prepend.endOfPaginationReached &&
+            pagingItems.itemCount == 0
+        ) {
+            onEmpty()
+        } else content(pagingItems)
 
-                (refresh is LoadState.NotLoading || refresh is LoadState.Loading) && (pagingItems.itemCount == 0) -> {
-                    onEmpty?.invoke()
-                }
-
-                else -> {
-                    content(pagingItems)
-                }
-            }
-
-            PullRefreshIndicator(
-                modifier = Modifier.align(Alignment.TopCenter),
-                refreshing = refresh is LoadState.Loading,
-                state = pullRefreshState
-            )
-        }
+        PullRefreshIndicator(
+            modifier = Modifier.align(alignment = Alignment.TopCenter),
+            refreshing = refreshing,
+            state = pullRefreshState,
+        )
     }
 }
 

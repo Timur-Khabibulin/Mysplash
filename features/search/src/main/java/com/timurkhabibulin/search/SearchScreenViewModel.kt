@@ -1,106 +1,66 @@
 package com.timurkhabibulin.search
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.timurkhabibulin.domain.DeviceStateRepository
 import com.timurkhabibulin.domain.entities.Collection
+import com.timurkhabibulin.domain.entities.Color
+import com.timurkhabibulin.domain.entities.Orientation
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.User
 import com.timurkhabibulin.domain.search.SearchUseCase
-import com.timurkhabibulin.search.filter.FilterHandler
-import com.timurkhabibulin.search.filter.FilterUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
+
+private const val SEARCH_QUERY = "search_query"
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     private val searchUseCase: SearchUseCase,
-    private val deviceStateRepository: DeviceStateRepository
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private var loadJob: Job? = null
+    private val _searchParametersChanged = MutableStateFlow(false)
 
-    private val _filters = MutableStateFlow(SearchScreenFiltersState())
-    val filters = _filters.asStateFlow()
+    val searchQuery = savedStateHandle.getStateFlow(SEARCH_QUERY, "")
+    val color: MutableState<Color?> = mutableStateOf(null)
+    val orientation: MutableState<Orientation?> = mutableStateOf(null)
 
-    private val _photos = MutableStateFlow<PagingData<Photo>>(PagingData.empty())
-    val photos = _photos.asStateFlow()
-
-    private val _collections = MutableStateFlow<PagingData<Collection>>(PagingData.empty())
-    val collections = _collections.asStateFlow()
-
-    private val _users = MutableStateFlow<PagingData<User>>(PagingData.empty())
-    val users = _users.asStateFlow()
-
-    val filterHandler = FilterHandler()
-
-    init {
-        viewModelScope.launch {
-            deviceStateRepository.networkAvailableState()
-                .distinctUntilChanged()
-                .onEach {
-                    startSearch()
-                }.stateIn(viewModelScope)
-        }
+    val photos: Flow<PagingData<Photo>> = _searchParametersChanged.getDataFromRequest {
+        searchUseCase.searchPhotos(searchQuery.value, color.value, orientation.value)
     }
 
-    fun updateFilterStateAndStartSearch(state: FilterUIState) {
-        _filters.update {
-            it.copy(filters = state)
-        }
-        startSearch()
+    val collections: Flow<PagingData<Collection>> = _searchParametersChanged.getDataFromRequest {
+        searchUseCase.searchCollections(searchQuery.value)
     }
 
-    fun updateCategory(category: SearchCategory) {
-        _filters.update {
-            it.copy(category = category)
-        }
+    val users: Flow<PagingData<User>> = _searchParametersChanged.getDataFromRequest {
+        searchUseCase.searchUsers(searchQuery.value)
     }
 
-    fun updateQuery(query: String) {
-        _filters.update {
-            it.copy(query = query)
-        }
+    fun searchParametersChanged() {
+        _searchParametersChanged.value = true
     }
 
-    fun startSearch() {
-        loadJob?.cancel()
-        loadJob = viewModelScope.launch {
-            launch {
-                searchUseCase.searchPhotos(
-                    query = filters.value.query,
-                    color = filters.value.filters.color,
-                    orientation = filters.value.filters.orientation
-                )
-                    .cachedIn(viewModelScope)
-                    .collect {
-                        _photos.value = it
-                    }
-            }
-            launch {
-                searchUseCase.searchCollections(filters.value.query)
-                    .cachedIn(viewModelScope)
-                    .collect {
-                        _collections.value = it
-                    }
-            }
-            launch {
-                searchUseCase.searchUsers(filters.value.query)
-                    .cachedIn(viewModelScope)
-                    .collect {
-                        _users.value = it
-                    }
-            }
-        }
+    fun changeSearchQuery(query: String) {
+        savedStateHandle[SEARCH_QUERY] = query
+        searchParametersChanged()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun <T : Any> MutableStateFlow<Boolean>.getDataFromRequest(request: () -> Flow<PagingData<T>>): Flow<PagingData<T>> {
+        return this.flatMapLatest {
+            val result = request()
+            _searchParametersChanged.value = false
+            return@flatMapLatest result
+        }.cachedIn(viewModelScope)
     }
 }
