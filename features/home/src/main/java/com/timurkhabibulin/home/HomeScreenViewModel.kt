@@ -1,42 +1,63 @@
 package com.timurkhabibulin.home
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
+import com.timurkhabibulin.domain.DeviceStateRepository
 import com.timurkhabibulin.domain.entities.Photo
 import com.timurkhabibulin.domain.entities.Topic
 import com.timurkhabibulin.domain.photos.PhotosUseCase
 import com.timurkhabibulin.domain.result.onSuccess
 import com.timurkhabibulin.domain.topics.TopicsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 internal class HomeScreenViewModel @Inject constructor(
-    photosUseCase: PhotosUseCase,
-    private val topicsUseCase: TopicsUseCase
+    private val photosUseCase: PhotosUseCase,
+    private val topicsUseCase: TopicsUseCase,
+    private val deviceStateRepository: DeviceStateRepository
 ) : ViewModel() {
 
-    private val _topics = mutableStateOf(listOf<Topic>())
-    val topics: State<List<Topic>> = _topics
+    private var loadJob: Job? = null
 
-    val photos: Flow<PagingData<Photo>> = photosUseCase.getPhotos().cachedIn(viewModelScope)
+    private val _topics = MutableStateFlow<List<Topic>>(listOf())
+    val topics = _topics.asStateFlow()
+
+    private val _photos = MutableStateFlow<PagingData<Photo>>(PagingData.empty())
+    val photos = _photos.asStateFlow()
 
     init {
-        loadTopics()
-    }
-
-    private fun loadTopics() {
+        load()
         viewModelScope.launch {
-            topicsUseCase.getTopics().onSuccess {
-                _topics.value = it
-            }
+            deviceStateRepository.networkAvailableState()
+                .distinctUntilChanged()
+                .onEach {
+                    load()
+                }.stateIn(viewModelScope)
         }
     }
 
+    private fun load() {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            launch {
+                topicsUseCase.getTopics().onSuccess {
+                    _topics.value = it
+                }
+            }
+            launch {
+                photosUseCase.getPhotos().collect {
+                    _photos.value = it
+                }
+            }
+        }
+    }
 }

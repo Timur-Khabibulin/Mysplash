@@ -51,7 +51,7 @@ internal fun TopicsScreen(
     topicsScreenViewModel: TopicsScreenViewModel = hiltViewModel()
 ) {
 
-    val state by topicsScreenViewModel.state.collectAsState()
+    val state by topicsScreenViewModel.topics.collectAsState()
 
     when (val screenState = state) {
         is LoadState.Loading -> {
